@@ -68,6 +68,22 @@
     #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
     .toast { background: #21262d; color: white; padding: 10px 16px; border-radius: 6px; font-size: 0.88rem; border: 1px solid var(--border); }
     #admin-login-lock { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 16px; }
+
+    /* 移动端/手机端后台专用自适应适配 */
+    @media (max-width: 768px) {
+      .admin-layout { flex-direction: column; }
+      .admin-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
+      .admin-brand { padding: 12px 16px; font-size: 1rem; }
+      .admin-menu { flex-direction: row; overflow-x: auto; padding: 6px 8px; gap: 4px; }
+      .admin-menu-item { white-space: nowrap; padding: 6px 10px; font-size: 0.82rem; }
+      .admin-topbar { padding: 10px 16px; }
+      .admin-content { padding: 14px 10px; }
+      .stat-card-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .stat-card { padding: 12px; }
+      .stat-value { font-size: 1.35rem; }
+      .modal-overlay { align-items: flex-end; padding: 0; }
+      .modal-box { max-width: 100%; border-radius: 14px 14px 0 0; }
+    }
   </style>
 </head>
 <body>
@@ -141,6 +157,25 @@
       <main class="admin-content">
         <!-- 1. 控制看板 -->
         <section id="pane-dashboard">
+          <!-- 站长公告即时发布卡片 -->
+          <div style="background: #1c2128; border-radius: 10px; border: 1px solid var(--border); border-left: 4px solid #58a6ff; padding: 16px 20px; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.15rem;">📢</span>
+                <h3 style="font-size: 1rem; font-weight: 700; color: white;">全网置顶公告即时发布</h3>
+              </div>
+              <span style="font-size: 0.78rem; color: var(--text-muted);">发布后前台买家实时同步可见</span>
+            </div>
+            <div style="display: flex; gap: 10px; flex-direction: column;">
+              <textarea id="quick-announcement-input" class="form-textarea" rows="2" placeholder="在此输入想要对所有买家展示的公告内容..."></textarea>
+              <div style="display: flex; justify-content: flex-end;">
+                <button class="btn btn-primary btn-sm" style="padding: 7px 18px;" onclick="publishQuickAnnouncement()">
+                  📢 立即发布新公告
+                </button>
+              </div>
+            </div>
+          </div>
+
           <div class="stat-card-grid">
             <div class="stat-card" style="border-left: 3px solid #f85149;">
               <div class="stat-title">待处理订单 (需人工代办)</div>
@@ -575,6 +610,14 @@
     }
 
     async function loadDashboard() {
+      // 同时加载当前已发布的公告内容回显
+      adminApi('/api/settings/public').then(res => {
+        if (res && res.code === 200 && res.data && res.data.site_announcement) {
+          const input = document.getElementById('quick-announcement-input');
+          if (input) input.value = res.data.site_announcement;
+        }
+      });
+
       const res = await adminApi('/api/admin/dashboard');
       if (res.code === 200 && res.data) {
         const d = res.data;
@@ -594,7 +637,7 @@
           tbody.innerHTML = d.recent_pending_orders.map(o => `
             <tr>
               <td><strong style="color:white;">${o.order_no}</strong></td>
-              <td style="color:white;">${escapeHtml(o.goods_name)}</td>
+              <td>${escapeHtml(o.goods_name)}</td>
               <td><span class="badge badge-info">${escapeHtml(o.username)}</span></td>
               <td style="color:#58a6ff; font-weight:600;">${escapeHtml(o.user_inputs || '无')}</td>
               <td style="color:#f85149; font-weight:700;">¥${Number(o.total_price).toFixed(2)}</td>
@@ -605,6 +648,21 @@
         } else {
           tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:24px; color:var(--text-muted);">暂无待处理订单</td></tr>';
         }
+      }
+    }
+
+    // 站长即时发布新公告
+    async function publishQuickAnnouncement() {
+      const text = document.getElementById('quick-announcement-input').value.trim();
+      if (!text) { showToast('公告内容不能为空', 'warning'); return; }
+      const res = await adminApi('/api/admin/announcement', {
+        method: 'POST',
+        body: JSON.stringify({ announcement: text })
+      });
+      if (res && res.code === 200) {
+        showToast('站长公告已成功发布！全网买家实时同步可见', 'success');
+      } else {
+        showToast(res ? res.message : '发布失败', 'error');
       }
     }
 

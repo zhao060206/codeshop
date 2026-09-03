@@ -497,6 +497,135 @@
     .toast.success { border-left: 4px solid #238636; }
     .toast.error { border-left: 4px solid #da3633; }
 
+    /* 站长置顶公告卡片 */
+    .notice-card {
+      background: #161b22;
+      border: 1px solid var(--border);
+      border-left: 4px solid #58a6ff;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 22px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .notice-icon {
+      font-size: 1.25rem;
+      line-height: 1.2;
+    }
+    .notice-body {
+      flex: 1;
+    }
+    .notice-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #58a6ff;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .notice-content {
+      color: #f0f6fc;
+      font-size: 0.92rem;
+      line-height: 1.55;
+      word-break: break-all;
+      white-space: pre-wrap;
+    }
+
+    /* 移动端/手机端专用响应式适配 */
+    @media (max-width: 768px) {
+      .nav-container {
+        padding: 10px 14px;
+      }
+      .brand {
+        font-size: 1.05rem;
+      }
+      .brand-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 0.95rem;
+      }
+      .nav-actions {
+        gap: 6px;
+      }
+      .nav-actions .btn {
+        padding: 5px 9px;
+        font-size: 0.78rem;
+      }
+      #user-logged-zone {
+        gap: 6px !important;
+      }
+      #user-logged-zone > div {
+        padding: 3px 8px !important;
+        font-size: 0.78rem !important;
+      }
+      .container {
+        padding: 16px 12px;
+      }
+      .hero-banner {
+        padding: 20px 16px;
+        margin-bottom: 20px;
+      }
+      .hero-title {
+        font-size: 1.35rem;
+      }
+      .hero-subtitle {
+        font-size: 0.88rem;
+      }
+      .hero-btn-group {
+        flex-direction: column;
+        width: 100%;
+      }
+      .hero-btn-group .btn {
+        width: 100%;
+        padding: 10px;
+        font-size: 0.92rem;
+      }
+      .goods-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+      .goods-card {
+        border-radius: 8px;
+      }
+      .goods-body {
+        padding: 14px;
+      }
+      .goods-title {
+        font-size: 1.02rem;
+      }
+      .goods-price {
+        font-size: 1.22rem;
+      }
+      .goods-footer .btn {
+        padding: 8px 16px;
+        font-size: 0.88rem;
+      }
+      /* 手机端弹窗贴底优化，防止软键盘遮挡 */
+      .modal-overlay {
+        align-items: flex-end;
+        padding: 0;
+      }
+      .modal-box {
+        max-width: 100%;
+        border-radius: 16px 16px 0 0;
+        max-height: 85vh;
+      }
+      .modal-header {
+        padding: 14px 18px;
+      }
+      .modal-body {
+        padding: 16px 18px;
+      }
+      .modal-footer {
+        padding: 12px 18px;
+      }
+      .modal-footer .btn {
+        flex: 1;
+        padding: 10px;
+      }
+    }
+
     footer {
       text-align: center;
       padding: 24px;
@@ -570,6 +699,15 @@
         </div>
       </div>
     </section>
+
+    <!-- 站长置顶公告播报卡片 -->
+    <div class="notice-card" id="notice-broadcast-card">
+      <div class="notice-icon">📢</div>
+      <div class="notice-body">
+        <div class="notice-title">站长置顶公告</div>
+        <div class="notice-content" id="site-announcement-display">欢迎光临！在联动小铺拍下卡密后，复制到本站兑换余额即可直接下单，站长收到订单后极速人工为您处理。</div>
+      </div>
+    </div>
 
     <!-- 商品列表区域 -->
     <div class="section-header">

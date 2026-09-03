@@ -709,6 +709,23 @@ app.post('/api/admin/settings', adminMiddleware, async (req, res) => {
   }
 });
 
+// 站长即时发布最新公告接口
+app.post('/api/admin/announcement', adminMiddleware, async (req, res) => {
+  try {
+    const { announcement } = req.body;
+    if (announcement === undefined) {
+      return res.status(400).json({ code: 400, message: '公告内容不能为空' });
+    }
+    await db.run(
+      `INSERT INTO system_settings (key, value) VALUES ('site_announcement', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value;`,
+      [announcement.trim()]
+    );
+    res.json({ code: 200, message: '站长公告已成功发布并全网实时同步！' });
+  } catch (err) {
+    res.status(500).json({ code: 500, message: '发布公告失败' });
+  }
+});
+
 app.get('/api/admin/dashboard', adminMiddleware, async (req, res) => {
   try {
     const userCountRes = await db.get('SELECT COUNT(*) as count FROM users WHERE is_admin = 0;');
