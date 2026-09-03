@@ -680,8 +680,8 @@
           <label class="form-label" id="buy-input-label">
             请填写代办指定信息 <span style="color: #f85149;">*</span>
           </label>
-          <textarea id="buy-user-input" class="form-textarea" rows="3" placeholder="请在此输入账号/区服等相关信息..."></textarea>
-          <div class="form-hint" id="buy-input-hint">请仔细核对您填写的信息，站长将在后台安全查看并为您处理。</div>
+          <textarea id="buy-user-input" class="form-textarea" rows="3" placeholder="格式提示：账号 密码（中间用空格隔开）"></textarea>
+          <div class="form-hint" id="buy-input-hint">请按照【账号 密码】（中间用空格隔开）填写，站长将在后台为您接单处理。</div>
         </div>
       </div>
       <div class="modal-footer">
@@ -815,6 +815,14 @@
       showToast('您已退出登录', 'info');
     }
 
+    let goodsMap = {};
+
+    function handleBuyClick(goodsId) {
+      const good = goodsMap[goodsId];
+      if (!good) return;
+      openBuyModal(good);
+    }
+
     async function loadGoods() {
       const container = document.getElementById('goods-container');
       const badge = document.getElementById('goods-count-badge');
@@ -829,6 +837,12 @@
         container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #8b949e;">暂无商品</div>';
         return;
       }
+
+      goodsMap = {};
+      goods.forEach(item => {
+        goodsMap[item.id] = item;
+      });
+
       container.innerHTML = goods.map(item => `
         <div class="goods-card">
           <div class="goods-body">
@@ -840,7 +854,7 @@
             <p class="goods-desc">${escapeHtml(item.description || '无详细介绍')}</p>
             <div class="goods-footer">
               <div class="goods-price"><small>¥</small>${Number(item.price).toFixed(2)}</div>
-              <button class="btn btn-primary btn-sm" onclick="openBuyModal(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+              <button class="btn btn-primary btn-sm" onclick="handleBuyClick(${item.id})">
                 立即购买
               </button>
             </div>
@@ -892,6 +906,9 @@
         currentUser = res.data.user;
         updateUserUI(currentUser);
         closeModal('auth-modal');
+        if (currentGoodToBuy) {
+          setTimeout(() => { openBuyModal(currentGoodToBuy); }, 250);
+        }
       } else {
         showToast(res.message || '操作失败', 'error');
       }
@@ -936,7 +953,6 @@
       currentGoodToBuy = good;
       document.getElementById('buy-good-name').textContent = good.name;
       document.getElementById('buy-good-price').textContent = Number(good.price).toFixed(2);
-      document.getElementById('buy-good-cover').src = good.cover_url || '';
       document.getElementById('buy-user-balance').textContent = Number(currentUser.balance).toFixed(2);
 
       const balanceStatus = document.getElementById('buy-balance-status');

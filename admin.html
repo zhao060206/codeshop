@@ -194,10 +194,14 @@
                 <option value="1">✅ 已完成</option>
                 <option value="2">↩️ 已退款</option>
               </select>
-              <input type="text" id="order-search-input" class="form-input" style="width: 240px;" placeholder="搜索单号/买家/商品..." onkeydown="if(event.key==='Enter') loadAdminOrders()">
+              <input type="text" id="order-search-input" class="form-input" style="width: 220px;" placeholder="搜索单号/买家/商品..." onkeydown="if(event.key==='Enter') loadAdminOrders()">
               <button class="btn btn-outline btn-sm" onclick="loadAdminOrders()">🔍 筛选</button>
             </div>
-            <button class="btn btn-outline btn-sm" onclick="loadAdminOrders()">🔄 刷新列表</button>
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+              <button class="btn btn-primary btn-sm" onclick="exportOrdersToExcel()">📊 导出Excel表格</button>
+              <button class="btn btn-gold btn-sm" onclick="openExtractAccountsModal()">📋 提取账号密码</button>
+              <button class="btn btn-outline btn-sm" onclick="loadAdminOrders()">🔄 刷新</button>
+            </div>
           </div>
           <div class="data-table-container">
             <table class="data-table">
@@ -205,17 +209,19 @@
                 <tr>
                   <th>订单号</th>
                   <th>商品名称</th>
-                  <th>买家账号</th>
-                  <th>买家定制信息</th>
+                  <th>买家</th>
+                  <th>提取账号</th>
+                  <th>提取密码</th>
+                  <th>原始代办信息</th>
                   <th>总额</th>
                   <th>状态</th>
-                  <th>站长回执</th>
+                  <th>回执</th>
                   <th>下单时间</th>
                   <th>操作</th>
                 </tr>
               </thead>
               <tbody id="admin-orders-table-body">
-                <tr><td colspan="9" style="text-align: center; padding: 30px;">加载中...</td></tr>
+                <tr><td colspan="11" style="text-align: center; padding: 30px;">加载中...</td></tr>
               </tbody>
             </table>
           </div>
@@ -406,6 +412,30 @@
     </div>
   </div>
 
+  <!-- 账号密码提取与一键复制弹窗 -->
+  <div class="modal-overlay" id="extract-accounts-modal">
+    <div class="modal-box" style="max-width: 580px;">
+      <div class="modal-header">
+        <div class="modal-title">📋 批量提取买家账号与密码</div>
+        <button class="modal-close" onclick="closeModal('extract-accounts-modal')">×</button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <span style="color: var(--text-muted); font-size: 0.88rem;">已自动从订单中识别并提取账号密码：</span>
+          <span class="badge badge-info" id="extract-count-badge">0 笔订单</span>
+        </div>
+        <textarea id="extract-accounts-textarea" class="form-textarea" rows="11" readonly style="font-family: monospace; font-size: 0.95rem; font-weight: 600; color: #58a6ff; line-height: 1.6;"></textarea>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 8px;">
+          💡 每行一条记录，格式为：<code>账号 密码</code>（可直接用于批量代充软件或脚本）。
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('extract-accounts-modal')">关闭</button>
+        <button class="btn btn-gold" onclick="copyExtractedAccounts()">📋 一键复制全部账号密码</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 商品编辑弹窗 -->
   <div class="modal-overlay" id="good-edit-modal">
     <div class="modal-box">
@@ -578,6 +608,30 @@
       }
     }
 
+    // 智能提取账号与密码 (按空格切分或关键词识别)
+    function parseAccountPassword(rawText) {
+      if (!rawText) return { account: '-', password: '-' };
+      const clean = rawText.trim();
+      const accMatch = clean.match(/(?:账号|帐号|user|account)[:：\s]+([^\s,;，；]+)/i);
+      const pwdMatch = clean.match(/(?:密码|pass|pwd|password)[:：\s]+([^\s,;，；]+)/i);
+      if (accMatch || pwdMatch) {
+        return {
+          account: accMatch ? accMatch[1] : (clean.split(/\s+/)[0] || '-'),
+          password: pwdMatch ? pwdMatch[1] : '-'
+        };
+      }
+      const parts = clean.split(/\s+/);
+      if (parts.length >= 2) {
+        return {
+          account: parts[0],
+          password: parts.slice(1).join(' ')
+        };
+      } else if (parts.length === 1 && parts[0]) {
+        return { account: parts[0], password: '-' };
+      }
+      return { account: '-', password: '-' };
+    }
+
     async function loadAdminOrders() {
       const status = document.getElementById('order-filter-status').value;
       const search = document.getElementById('order-search-input').value.trim();
@@ -589,23 +643,113 @@
       if (res.code === 200 && res.data) {
         const orders = res.data.orders;
         if (orders.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:30px; color:var(--text-muted);">暂无订单</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="11" style="text-align:center; padding:30px; color:var(--text-muted);">暂无订单</td></tr>';
           return;
         }
-        tbody.innerHTML = orders.map(o => `
-          <tr>
-            <td><strong style="color:white;">${o.order_no}</strong></td>
-            <td style="color:white;">${escapeHtml(o.goods_name)}</td>
-            <td><span class="badge badge-info">${escapeHtml(o.username)}</span></td>
-            <td style="color:#58a6ff; font-weight:600;">${escapeHtml(o.user_inputs || '无')}</td>
-            <td style="color:#f85149; font-weight:700;">¥${Number(o.total_price).toFixed(2)}</td>
-            <td>${o.status === 1 ? '<span class="badge badge-success">已完成</span>' : (o.status === 2 ? '<span class="badge badge-danger">已退款</span>' : '<span class="badge badge-warning">待处理</span>')}</td>
-            <td>${escapeHtml(o.admin_reply || '-')}</td>
-            <td style="font-size:0.8rem; color:var(--text-muted);">${o.created_at}</td>
-            <td><button class="btn btn-primary btn-sm" onclick="openProcessModal(${JSON.stringify(o).replace(/"/g, '&quot;')})">处理/查看</button></td>
-          </tr>
-        `).join('');
+        tbody.innerHTML = orders.map(o => {
+          const parsed = parseAccountPassword(o.user_inputs);
+          return `
+            <tr>
+              <td><strong style="color:white;">${o.order_no}</strong></td>
+              <td style="color:white;">${escapeHtml(o.goods_name)}</td>
+              <td><span class="badge badge-info">${escapeHtml(o.username)}</span></td>
+              <td><code style="color:#58a6ff; font-weight:700; background:#0d1117; padding:2px 6px; border-radius:4px;">${escapeHtml(parsed.account)}</code></td>
+              <td><code style="color:#fcd34d; font-weight:700; background:#0d1117; padding:2px 6px; border-radius:4px;">${escapeHtml(parsed.password)}</code></td>
+              <td style="color:var(--text-muted); font-size:0.8rem; max-width:160px; word-break:break-all;">${escapeHtml(o.user_inputs || '-')}</td>
+              <td style="color:#f85149; font-weight:700;">¥${Number(o.total_price).toFixed(2)}</td>
+              <td>${o.status === 1 ? '<span class="badge badge-success">已完成</span>' : (o.status === 2 ? '<span class="badge badge-danger">已退款</span>' : '<span class="badge badge-warning">待处理</span>')}</td>
+              <td style="font-size:0.82rem; color:#7ee787; max-width:120px;">${escapeHtml(o.admin_reply || '-')}</td>
+              <td style="font-size:0.8rem; color:var(--text-muted);">${o.created_at}</td>
+              <td><button class="btn btn-primary btn-sm" onclick="openProcessModal(${JSON.stringify(o).replace(/"/g, '&quot;')})">处理/查看</button></td>
+            </tr>
+          `;
+        }).join('');
       }
+    }
+
+    // 一键导出 Excel (带 UTF-8 BOM，在 Excel 打开绝不乱码)
+    async function exportOrdersToExcel() {
+      const status = document.getElementById('order-filter-status').value;
+      const search = document.getElementById('order-search-input').value.trim();
+      let url = `/api/admin/orders?limit=1000`;
+      if (status !== '') url += `&status=${status}`;
+      if (search !== '') url += `&search=${encodeURIComponent(search)}`;
+
+      showToast('正在导出订单表格...', 'info');
+      const res = await adminApi(url);
+      if (!res || res.code !== 200 || !res.data || !res.data.orders) {
+        showToast('获取订单失败，无法导出', 'error');
+        return;
+      }
+      const orders = res.data.orders;
+      if (orders.length === 0) {
+        showToast('当前没有符合条件的订单可导出', 'warning');
+        return;
+      }
+
+      const headers = ['订单号', '商品名称', '买家用户名', '提取账号', '提取密码', '原始提交代办信息', '金额(元)', '订单状态', '站长回执', '下单时间'];
+      const rows = orders.map(o => {
+        const parsed = parseAccountPassword(o.user_inputs);
+        const statusText = o.status === 1 ? '已完成' : (o.status === 2 ? '已退款' : '待处理');
+        return [
+          `"${(o.order_no || '').replace(/"/g, '""')}"`,
+          `"${(o.goods_name || '').replace(/"/g, '""')}"`,
+          `"${(o.username || '').replace(/"/g, '""')}"`,
+          `"${(parsed.account || '').replace(/"/g, '""')}"`,
+          `"${(parsed.password || '').replace(/"/g, '""')}"`,
+          `"${(o.user_inputs || '').replace(/"/g, '""')}"`,
+          `"${Number(o.total_price).toFixed(2)}"`,
+          `"${statusText}"`,
+          `"${(o.admin_reply || '').replace(/"/g, '""')}"`,
+          `"${(o.created_at || '')}"`
+        ];
+      });
+
+      const csvContent = '\uFEFF' + headers.join(',') + '\n' + rows.map(r => r.join(',')).join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const filename = `订单代办账号提取表_${new Date().toISOString().slice(0,10)}.csv`;
+      link.href = URL.createObjectURL(blob);
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast(`已成功导出 ${orders.length} 笔订单 Excel 表格！`, 'success');
+    }
+
+    // 批量提取账号密码 (快捷复制)
+    async function openExtractAccountsModal() {
+      const status = document.getElementById('order-filter-status').value;
+      const search = document.getElementById('order-search-input').value.trim();
+      let url = `/api/admin/orders?limit=1000`;
+      if (status !== '') url += `&status=${status}`;
+      if (search !== '') url += `&search=${encodeURIComponent(search)}`;
+
+      const res = await adminApi(url);
+      if (!res || res.code !== 200 || !res.data || !res.data.orders) {
+        showToast('获取订单失败', 'error');
+        return;
+      }
+      const orders = res.data.orders;
+      const lines = [];
+      orders.forEach(o => {
+        const parsed = parseAccountPassword(o.user_inputs);
+        if (parsed.account && parsed.account !== '-') {
+          lines.push(`${parsed.account} ${parsed.password !== '-' ? parsed.password : ''}`.trim());
+        }
+      });
+
+      document.getElementById('extract-count-badge').textContent = `共 ${lines.length} 个账号`;
+      document.getElementById('extract-accounts-textarea').value = lines.join('\n');
+      openModal('extract-accounts-modal');
+    }
+
+    function copyExtractedAccounts() {
+      const text = document.getElementById('extract-accounts-textarea').value;
+      if (!text) { showToast('暂无账号密码可复制', 'warning'); return; }
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('已复制全部账号密码到剪贴板！', 'success');
+      });
     }
 
     function openProcessModal(order) {
