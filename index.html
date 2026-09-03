@@ -982,7 +982,14 @@
     }
 
     async function checkUserLogin() {
-      const token = localStorage.getItem('shop_buyer_token');
+      // 兼容平滑读取：优先读新的 shop_buyer_token，若无则尝试迁移旧的凭证
+      let token = localStorage.getItem('shop_buyer_token');
+      if (!token) {
+        token = localStorage.getItem('token');
+        if (token) {
+          localStorage.setItem('shop_buyer_token', token);
+        }
+      }
       if (!token) {
         updateUserUI(null);
         return;
@@ -1245,7 +1252,7 @@
 
     async function openOrdersModal() {
       if (!currentUser) {
-        showToast('请先登录账号', 'warning');
+        showToast('您当前处于未登录状态，请先登录您的账号查看余额与订单！', 'warning');
         openAuthModal('login');
         return;
       }
