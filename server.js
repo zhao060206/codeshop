@@ -3,7 +3,7 @@ const cors = require('cors');
 const path = require('node:path');
 const fs = require('node:fs');
 const crypto = require('node:crypto');
-const { db, hashPassword, verifyPassword } = require('./db');
+const { db, hashPassword, verifyPassword, encryptText, decryptText } = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,14 +14,13 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ==================== 全平铺静态资源托管 ====================
-// 无论文件在根目录还是 public 子目录，均全方位自适应托管
+// 全平铺静态资源托管
 app.use(express.static(__dirname));
 if (fs.existsSync(path.join(__dirname, 'public'))) {
   app.use(express.static(path.join(__dirname, 'public')));
 }
 
-// 首页与管理页显式路由
+// 首页与管理页路由
 app.get('/', (req, res) => {
   const candidates = [
     path.join(__dirname, 'index.html'),
@@ -44,7 +43,7 @@ app.get('/admin.html', (req, res) => {
   res.send('<h1>站长管理后台</h1>');
 });
 
-// ==================== 安全 Token 机制 ====================
+// 安全 Token
 function generateToken(user) {
   const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
   const payload = Buffer.from(
@@ -81,7 +80,7 @@ function verifyToken(token) {
   }
 }
 
-// 身份校验中间件
+// 身份中间件
 function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
@@ -96,7 +95,6 @@ function authMiddleware(req, res, next) {
   next();
 }
 
-// 管理员权限中间件
 function adminMiddleware(req, res, next) {
   authMiddleware(req, res, () => {
     if (!req.user.is_admin) {
@@ -112,27 +110,31 @@ app.post('/api/auth/register', (req, res) => {
   if (!username || !password) {
     return res.status(400).json({ code: 400, message: '用户名和密码不能为空' });
   }
-  if (username.length < 3 || username.length > 20) {
+
+  const cleanUsername = username.trim();
+  if (cleanUsername.length < 3 || cleanUsername.length > 20) {
     return res.status(400).json({ code: 400, message: '用户名长度需在 3 到 20 位之间' });
   }
   if (password.length < 6) {
     return res.status(400).json({ code: 400, message: '密码长度不能少于 6 位' });
   }
 
-  const existUser = db.prepare('SELECT id FROM users WHERE username = ?').get(username);
+  // 严格大小写不敏感排重
+  const existUser = db.prepare('SELECT id FROM users WHERE LOWER(username) = LOWER(?)').get(cleanUsername);
   if (existUser) {
-    return res.status(400).json({ code: 400, message: '该用户名已被注册，请更换一个' });
+    return res.status(400).json({ code: 400, message: `用户名【${cleanUsername}】已被占用，请更换` });
   }
 
+  // scrypt 强加盐不可逆哈希
   const { hash, salt } = hashPassword(password);
   try {
     const insertStmt = db.prepare(`
       INSERT INTO users (username, password_hash, salt, balance, is_admin)
       VALUES (?, ?, ?, 0.00, 0)
     `);
-    const result = insertStmt.run(username, hash, salt);
+    const result = insertStmt.run(cleanUsername, hash, salt);
     const userId = Number(result.lastInsertRowid);
-    const user = { id: userId, username, balance: 0.00, is_admin: 0 };
+    const user = { id: userId, username: cleanUsername, balance: 0.00, is_admin: 0 };
     const token = generateToken(user);
     res.json({
       code: 200,
@@ -141,7 +143,7 @@ app.post('/api/auth/register', (req, res) => {
     });
   } catch (err) {
     console.error('注册错误:', err);
-    res.status(500).json({ code: 500, message: '注册失败，请稍后重试' });
+    res.status(500).json({ code: 500, message: '该用户名已存在，请更换' });
   }
 });
 
@@ -151,7 +153,8 @@ app.post('/api/auth/login', (req, res) => {
     return res.status(400).json({ code: 400, message: '请输入用户名和密码' });
   }
 
-  const user = db.prepare('SELECT * FROM users WHERE username = ?').get(username);
+  const cleanUsername = username.trim();
+  const user = db.prepare('SELECT * FROM users WHERE LOWER(username) = LOWER(?)').get(cleanUsername);
   if (!user || !verifyPassword(password, user.password_hash, user.salt)) {
     return res.status(400).json({ code: 400, message: '用户名或密码错误' });
   }
@@ -198,11 +201,11 @@ app.post('/api/auth/change-password', authMiddleware, (req, res) => {
   res.json({ code: 200, message: '密码修改成功，请牢记新密码' });
 });
 
-// ==================== 2. 卡密兑换与管理模块 ====================
+// ==================== 2. 卡密兑换与管理 ====================
 app.post('/api/cards/redeem', authMiddleware, (req, res) => {
   const { code } = req.body;
   if (!code || typeof code !== 'string') {
-    return res.status(400).json({ code: 400, message: '请输入有效的卡密字符串' });
+    return res.status(400).json({ code: 400, message: '请输入有效的卡密' });
   }
 
   const cleanCode = code.trim();
@@ -212,10 +215,7 @@ app.post('/api/cards/redeem', authMiddleware, (req, res) => {
     return res.status(400).json({ code: 400, message: '卡密不存在或输入有误，请核对' });
   }
   if (card.status === 1) {
-    return res.status(400).json({
-      code: 400,
-      message: `该卡密已于 ${card.used_at || '之前'} 被使用，不可重复兑换`
-    });
+    return res.status(400).json({ code: 400, message: '该卡密此前已被兑换使用' });
   }
   if (card.status === 2) {
     return res.status(400).json({ code: 400, message: '该卡密已被管理员作废' });
@@ -246,7 +246,7 @@ app.post('/api/cards/redeem', authMiddleware, (req, res) => {
       req.user.username,
       card.amount,
       updatedUser.balance,
-      `卡密兑换到账 (面额: ¥${card.amount.toFixed(2)}, 卡号: ${card.code})`
+      `卡密兑换到账 (面额: ¥${card.amount.toFixed(2)})`
     );
 
     db.exec('COMMIT;');
@@ -261,7 +261,6 @@ app.post('/api/cards/redeem', authMiddleware, (req, res) => {
     });
   } catch (err) {
     db.exec('ROLLBACK;');
-    console.error('兑换卡密异常:', err);
     res.status(500).json({ code: 500, message: '兑换处理异常，请重试' });
   }
 });
@@ -312,7 +311,6 @@ app.post('/api/admin/cards/generate', adminMiddleware, (req, res) => {
     });
   } catch (err) {
     db.exec('ROLLBACK;');
-    console.error('批量生成卡密异常:', err);
     res.status(500).json({ code: 500, message: '生成失败，请稍后重试' });
   }
 });
@@ -387,7 +385,7 @@ app.post('/api/admin/cards/:id/void', adminMiddleware, (req, res) => {
   res.json({ code: 200, message: '卡密已成功作废' });
 });
 
-// ==================== 3. 商品发布与展示模块 ====================
+// ==================== 3. 商品发布与展示 ====================
 app.get('/api/goods', (req, res) => {
   const goods = db.prepare(`
     SELECT id, name, price, category, description, cover_url, require_input, input_placeholder, stock 
@@ -479,7 +477,8 @@ app.patch('/api/admin/goods/:id/status', adminMiddleware, (req, res) => {
   res.json({ code: 200, message: status === 1 ? '商品已成功上架' : '商品已下架' });
 });
 
-// ==================== 4. 订单与代办处理模块 ====================
+// ==================== 4. 订单与隐私加密代办处理 ====================
+// 买家下单：使用 AES-256-GCM 对敏感定制代办信息加密入库
 app.post('/api/orders/create', authMiddleware, (req, res) => {
   const { goods_id, quantity = 1, user_inputs } = req.body;
   const numQty = parseInt(quantity, 10);
@@ -518,6 +517,9 @@ app.post('/api/orders/create', authMiddleware, (req, res) => {
   const randSuffix = crypto.randomBytes(3).toString('hex').toUpperCase();
   const orderNo = `ORD-${dateStr}-${randSuffix}`;
 
+  // 【核心安全】使用 AES-256-GCM 对客户提交的账号密码等代办信息进行密文存储
+  const encryptedUserInputs = encryptText((user_inputs || '').trim());
+
   try {
     db.exec('BEGIN TRANSACTION;');
 
@@ -537,7 +539,7 @@ app.post('/api/orders/create', authMiddleware, (req, res) => {
       good.price,
       numQty,
       totalPrice,
-      (user_inputs || '').trim()
+      encryptedUserInputs
     );
 
     const updatedUser = db.prepare('SELECT balance FROM users WHERE id = ?').get(req.user.id);
@@ -572,15 +574,25 @@ app.post('/api/orders/create', authMiddleware, (req, res) => {
   }
 });
 
+// 买家端查看自己的订单：实时安全解密
 app.get('/api/orders/my', authMiddleware, (req, res) => {
   const orders = db.prepare(`
     SELECT * FROM orders 
     WHERE user_id = ? 
     ORDER BY id DESC
   `).all(req.user.id);
-  res.json({ code: 200, data: orders });
+
+  // 解密敏感信息后返回
+  const decryptedOrders = orders.map(o => ({
+    ...o,
+    user_inputs: decryptText(o.user_inputs),
+    admin_reply: decryptText(o.admin_reply)
+  }));
+
+  res.json({ code: 200, data: decryptedOrders });
 });
 
+// 管理员端获取所有订单：实时安全解密
 app.get('/api/admin/orders', adminMiddleware, (req, res) => {
   const { status, search, page = 1, limit = 50 } = req.query;
   const offset = (parseInt(page, 10) - 1) * parseInt(limit, 10);
@@ -593,9 +605,9 @@ app.get('/api/admin/orders', adminMiddleware, (req, res) => {
     params.push(parseInt(status, 10));
   }
   if (search) {
-    whereClauses.push('(order_no LIKE ? OR username LIKE ? OR goods_name LIKE ? OR user_inputs LIKE ?)');
+    whereClauses.push('(order_no LIKE ? OR username LIKE ? OR goods_name LIKE ?)');
     const term = `%${search}%`;
-    params.push(term, term, term, term);
+    params.push(term, term, term);
   }
 
   const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
@@ -617,11 +629,18 @@ app.get('/api/admin/orders', adminMiddleware, (req, res) => {
     FROM orders
   `).get();
 
+  // 解密后返回给管理员
+  const decryptedOrders = orders.map(o => ({
+    ...o,
+    user_inputs: decryptText(o.user_inputs),
+    admin_reply: decryptText(o.admin_reply)
+  }));
+
   res.json({
     code: 200,
     data: {
       total,
-      orders,
+      orders: decryptedOrders,
       stats: {
         total_orders: stats.total_orders || 0,
         pending_orders: stats.pending_orders || 0,
@@ -632,6 +651,7 @@ app.get('/api/admin/orders', adminMiddleware, (req, res) => {
   });
 });
 
+// 管理员处理订单：加密回执入库
 app.post('/api/admin/orders/:id/process', adminMiddleware, (req, res) => {
   const orderId = parseInt(req.params.id, 10);
   const { status, admin_reply } = req.body;
@@ -642,12 +662,14 @@ app.post('/api/admin/orders/:id/process', adminMiddleware, (req, res) => {
     return res.status(404).json({ code: 404, message: '订单不存在' });
   }
 
+  const encryptedReply = encryptText(admin_reply || (targetStatus === 1 ? '站长已处理完成！' : '【已退款】订单已取消并全额退回账户余额'));
+
   if (targetStatus === 1) {
     db.prepare(`
       UPDATE orders 
       SET status = 1, admin_reply = ?, finish_time = datetime('now', 'localtime')
       WHERE id = ?
-    `).run(admin_reply || '站长已处理完成！', orderId);
+    `).run(encryptedReply, orderId);
 
     return res.json({ code: 200, message: '订单已成功标记为【已完成】，买家端已同步更新！' });
   } else if (targetStatus === 2) {
@@ -662,7 +684,7 @@ app.post('/api/admin/orders/:id/process', adminMiddleware, (req, res) => {
         UPDATE orders 
         SET status = 2, admin_reply = ?, finish_time = datetime('now', 'localtime')
         WHERE id = ?
-      `).run(admin_reply ? `【已退款】${admin_reply}` : '【已退款】订单已取消并全额退回账户余额', orderId);
+      `).run(encryptedReply, orderId);
 
       db.prepare('UPDATE users SET balance = balance + ? WHERE id = ?').run(order.total_price, order.user_id);
       db.prepare('UPDATE goods SET stock = stock + ? WHERE id = ?').run(order.quantity, order.goods_id);
@@ -683,7 +705,6 @@ app.post('/api/admin/orders/:id/process', adminMiddleware, (req, res) => {
       return res.json({ code: 200, message: `订单已取消，已将 ¥${order.total_price.toFixed(2)} 全额退回买家余额` });
     } catch (err) {
       db.exec('ROLLBACK;');
-      console.error('退款事务异常:', err);
       return res.status(500).json({ code: 500, message: '退款处理失败' });
     }
   } else {
@@ -691,7 +712,7 @@ app.post('/api/admin/orders/:id/process', adminMiddleware, (req, res) => {
   }
 });
 
-// ==================== 5. 系统设置与数据看板模块 ====================
+// ==================== 5. 系统设置与看板 ====================
 app.get('/api/settings/public', (req, res) => {
   const rows = db.prepare('SELECT key, value FROM system_settings').all();
   const settings = {};
@@ -742,6 +763,11 @@ app.get('/api/admin/dashboard', adminMiddleware, (req, res) => {
     SELECT * FROM orders WHERE status = 0 ORDER BY id DESC LIMIT 5
   `).all();
 
+  const decryptedPendingOrders = recentPendingOrders.map(o => ({
+    ...o,
+    user_inputs: decryptText(o.user_inputs)
+  }));
+
   res.json({
     code: 200,
     data: {
@@ -754,7 +780,7 @@ app.get('/api/admin/dashboard', adminMiddleware, (req, res) => {
       total_cards: cardStats.total_cards || 0,
       unused_cards: cardStats.unused_cards || 0,
       used_cards: cardStats.used_cards || 0,
-      recent_pending_orders: recentPendingOrders
+      recent_pending_orders: decryptedPendingOrders
     }
   });
 });
@@ -766,7 +792,6 @@ app.get('/api/balance/logs', authMiddleware, (req, res) => {
   res.json({ code: 200, data: logs });
 });
 
-// 兜底路由
 app.get('*', (req, res) => {
   if (req.path.includes('.')) {
     return res.status(404).send('File Not Found');
@@ -786,6 +811,6 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`🌟 星火卡密商城与代办系统 已成功启动！`);
   console.log(`🏠 前台商城地址：http://localhost:${PORT}`);
   console.log(`⚙️  管理后台地址：http://localhost:${PORT}/admin.html`);
-  console.log(`🔑 默认管理员账号：admin 密码：admin123`);
+  console.log(`🔑 默认管理员账号：admin 密码已设置`);
   console.log(`===================================================`);
 });
