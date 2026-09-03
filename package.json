@@ -1,0 +1,16 @@
+{
+  "name": "card-shop",
+  "version": "1.0.0",
+  "description": "基于卡密兑换余额与定制下单的虚拟商品商城系统",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["card-shop", "epay", "redeem", "ecommerce"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.2",
+    "cors": "^2.8.5"
+  }
+}
