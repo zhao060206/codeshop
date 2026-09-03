@@ -9,10 +9,58 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'spark-card-shop-ultra-secure-key-2026';
 
-// 中间件
+// 中间件与防探测安全加固
+app.disable('x-powered-by'); // 彻底抹除 Express 技术栈指纹，防止漏洞扫描
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// 注入工业级安全防御头与 IP 隐私脱敏
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff'); // 防 MIME 嗅探篡改
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN'); // 防点击劫持
+  res.setHeader('X-XSS-Protection', '1; mode=block'); // 浏览器原生 XSS 阻断
+  res.setHeader('Referrer-Policy', 'no-referrer'); // 严格禁止外泄来源地址与管理员路径
+  res.setHeader('Permissions-Policy', 'geolocation=(), camera=(), microphone=()');
+  res.removeHeader('Server'); // 移除服务器软件标识
+  next();
+});
+
+// ==================== 防暴力破解与防字典扫号护盾 ====================
+const loginFailures = new Map();
+
+function checkLoginRateLimit(req, res, next) {
+  const clientKey = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+  const now = Date.now();
+  const record = loginFailures.get(clientKey);
+
+  if (record && record.lockedUntil > now) {
+    const remainMinutes = Math.ceil((record.lockedUntil - now) / 60000);
+    return res.status(429).json({
+      code: 429,
+      message: `密码连续错误次数过多，系统已自动封锁！请 ${remainMinutes} 分钟后再试`
+    });
+  }
+  next();
+}
+
+function recordLoginFailure(req) {
+  const clientKey = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+  const now = Date.now();
+  const record = loginFailures.get(clientKey) || { count: 0, lockedUntil: 0 };
+  record.count += 1;
+  if (record.count >= 5) {
+    record.lockedUntil = now + 15 * 60 * 1000; // 连续输错 5 次直接封锁 15 分钟
+    record.count = 0;
+  }
+  loginFailures.set(clientKey, record);
+}
+
+function clearLoginFailure(req) {
+  const clientKey = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+  loginFailures.delete(clientKey);
+}
 
 // 全平铺静态资源托管
 app.use(express.static(__dirname));
@@ -145,7 +193,7 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
-app.post('/api/auth/login', async (req, res) => {
+app.post('/api/auth/login', checkLoginRateLimit, async (req, res) => {
   try {
     const { username, password } = req.body;
     if (!username || !password) {
@@ -155,8 +203,11 @@ app.post('/api/auth/login', async (req, res) => {
     const cleanUsername = username.trim();
     const user = await db.get('SELECT * FROM users WHERE LOWER(username) = LOWER(?);', [cleanUsername]);
     if (!user || !verifyPassword(password, user.password_hash, user.salt)) {
+      recordLoginFailure(req);
       return res.status(400).json({ code: 400, message: '用户名或密码错误' });
     }
+
+    clearLoginFailure(req);
 
     const userData = {
       id: user.id,
