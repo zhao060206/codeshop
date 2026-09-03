@@ -168,7 +168,7 @@ function initDefaultData() {
       30.00,
       '游戏代充',
       '请在下单时务必填写您的游戏平台（安卓/苹果）、游戏ID及账号。站长后台接单后会在15分钟内代充到账！',
-      'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&auto=format&fit=crop&q=60',
+      '',
       1,
       '请填写【游戏名称 + 渠道 + 游戏账号/ID】',
       999,
@@ -179,7 +179,7 @@ function initDefaultData() {
       15.00,
       '软件会员',
       '支持官方直冲，下单请留下您的绑定手机号。完成充值后可在本站“我的订单”查看充值到账回执。',
-      'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500&auto=format&fit=crop&q=60',
+      '',
       1,
       '请填写【需要开通会员的手机号】',
       999,
@@ -190,24 +190,12 @@ function initDefaultData() {
       50.00,
       '咨询代办',
       '站长1对1提供技术支持与咨询，下单请填写您的联系QQ或微信及咨询的具体问题概要。',
-      'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=500&auto=format&fit=crop&q=60',
+      '',
       1,
       '请填写【您的微信/QQ号 + 问题简要说明】',
       999,
       3
     );
-  }
-
-  // 示例体验卡密
-  const cardCountStmt = db.prepare('SELECT COUNT(*) as count FROM cards');
-  if (cardCountStmt.get().count === 0) {
-    const insertCard = db.prepare(`
-      INSERT INTO cards (code, amount, status, batch_no)
-      VALUES (?, ?, 0, 'INITIAL_BATCH')
-    `);
-    insertCard.run('TEST-100RMB-AAAA-BBBB', 100.00);
-    insertCard.run('TEST-50RMB-CCCC-DDDD', 50.00);
-    insertCard.run('TEST-30RMB-EEEE-FFFF', 30.00);
   }
 
   // 站点配置

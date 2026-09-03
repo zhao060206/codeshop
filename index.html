@@ -3,334 +3,259 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>星火卡密商城与代办服务</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+  <title>便捷数字小铺 - 虚拟服务与快速兑换</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛒</text></svg>">
   <style>
     /* ==========================================================================
-       顶尖深邃星空极光与流光毛玻璃设计系统 (Next-Gen Dark Aurora Glass)
+       极致轻量·低调高级感设计系统 (Ultra-Light Graphite Minimal)
+       专为低配置老电脑、卡顿老手机进行硬件级零开销优化，滑动丝滑 60 帧
        ========================================================================== */
     :root {
-      --bg-base: #090d16;
-      --bg-surface: rgba(15, 23, 42, 0.75);
-      --bg-card: rgba(30, 41, 59, 0.65);
-      --bg-input: rgba(15, 23, 42, 0.85);
+      --bg-body: #0d1117;
+      --bg-panel: #161b22;
+      --bg-card: #1b212c;
+      --bg-subtle: #21262d;
       
-      --primary: #6366f1;
-      --primary-glow: rgba(99, 102, 241, 0.4);
-      --accent-cyan: #06b6d4;
-      --accent-purple: #a855f7;
-      --accent-emerald: #10b981;
-      --accent-rose: #f43f5e;
-      --gold-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --gold: #f59e0b;
+      --gold-hover: #d97706;
+      --rose: #f43f5e;
+      --emerald: #10b981;
       
-      --text-main: #f8fafc;
-      --text-secondary: #cbd5e1;
-      --text-muted: #94a3b8;
+      --text-main: #f0f6fc;
+      --text-muted: #8b949e;
+      --border: #30363d;
+      --border-light: #484f58;
       
-      --border-glass: rgba(255, 255, 255, 0.1);
-      --border-glow: rgba(99, 102, 241, 0.5);
+      --radius-sm: 6px;
+      --radius: 10px;
+      --radius-lg: 14px;
       
-      --radius-sm: 10px;
-      --radius: 16px;
-      --radius-lg: 24px;
-      
-      --shadow-glass: 0 20px 40px -15px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border-glass);
-      --shadow-hover: 0 25px 50px -12px rgba(99, 102, 241, 0.25), 0 0 0 1px rgba(99, 102, 241, 0.4);
+      /* 轻量级纯净阴影，不消耗老设备 GPU 计算 */
+      --shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
       -webkit-font-smoothing: antialiased;
+      /* 强制开启 GPU 硬件合成层，消除滚动掉帧 */
+      transform: translateZ(0);
     }
 
     body {
-      background-color: var(--bg-base);
+      background-color: var(--bg-body);
       color: var(--text-main);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      position: relative;
       overflow-x: hidden;
     }
 
-    /* 绚丽极光氛围底晕 (Aurora Mesh) */
-    body::before {
-      content: '';
-      position: fixed;
-      top: -200px;
-      left: 20%;
-      width: 650px;
-      height: 650px;
-      background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, rgba(168, 85, 247, 0.15) 40%, transparent 70%);
-      border-radius: 50%;
-      filter: blur(80px);
-      pointer-events: none;
-      z-index: 0;
-    }
-    body::after {
-      content: '';
-      position: fixed;
-      top: 100px;
-      right: 15%;
-      width: 500px;
-      height: 500px;
-      background: radial-gradient(circle, rgba(6, 182, 212, 0.2) 0%, rgba(16, 185, 129, 0.1) 40%, transparent 70%);
-      border-radius: 50%;
-      filter: blur(80px);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* 顶部悬浮毛玻璃导航栏 */
+    /* 顶部导航 (纯色半透明，摒弃高能耗的高斯模糊) */
     .navbar {
-      background: rgba(9, 13, 22, 0.8);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border-glass);
+      background: #161b22;
+      border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
       z-index: 50;
-      transition: all 0.3s ease;
     }
 
     .nav-container {
-      max-width: 1240px;
+      max-width: 1180px;
       margin: 0 auto;
-      padding: 16px 24px;
+      padding: 12px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      position: relative;
-      z-index: 1;
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       text-decoration: none;
       color: var(--text-main);
-      font-size: 1.32rem;
-      font-weight: 800;
-      letter-spacing: -0.02em;
+      font-size: 1.18rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
     }
 
     .brand-icon {
-      background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+      background: #238636;
       color: white;
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.3rem;
-      box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      font-size: 1.1rem;
     }
 
     .nav-actions {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 10px;
     }
 
-    /* 现代顶级按钮组件 */
+    /* 精致克制的现代按钮 (零渲染瓶颈) */
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      padding: 10px 20px;
-      font-size: 0.92rem;
+      gap: 6px;
+      padding: 7px 15px;
+      font-size: 0.88rem;
       font-weight: 600;
-      border-radius: 12px;
+      border-radius: 8px;
       cursor: pointer;
       border: 1px solid transparent;
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: background 0.15s ease, border-color 0.15s ease;
       text-decoration: none;
       line-height: 1.4;
       outline: none;
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      background: var(--primary);
       color: #ffffff;
-      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
     }
     .btn-primary:hover {
-      background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
-      box-shadow: 0 6px 24px rgba(99, 102, 241, 0.6);
-      transform: translateY(-2px);
+      background: var(--primary-hover);
     }
 
     .btn-outline {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: var(--border-glass);
-      color: var(--text-secondary);
-      backdrop-filter: blur(10px);
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      color: var(--text-main);
     }
     .btn-outline:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.25);
-      color: #ffffff;
-      transform: translateY(-2px);
+      background: #30363d;
+      border-color: var(--border-light);
     }
 
     .btn-gold {
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-      color: white;
-      box-shadow: 0 4px 18px rgba(245, 158, 11, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+      background: var(--gold);
+      color: #0f172a;
+      font-weight: 700;
     }
     .btn-gold:hover {
-      background: linear-gradient(135deg, #fbbf24 0%, #b45309 100%);
-      box-shadow: 0 6px 26px rgba(245, 158, 11, 0.6);
-      transform: translateY(-2px);
+      background: var(--gold-hover);
+      color: #ffffff;
     }
 
     .btn-sm {
-      padding: 7px 14px;
-      font-size: 0.85rem;
-      border-radius: 10px;
+      padding: 5px 11px;
+      font-size: 0.82rem;
+      border-radius: 6px;
     }
 
-    /* 主内容容器 */
+    /* 容器布局 */
     .container {
-      max-width: 1240px;
+      max-width: 1180px;
       margin: 0 auto;
-      padding: 36px 24px;
+      padding: 24px 20px;
       flex: 1;
       width: 100%;
-      position: relative;
-      z-index: 1;
     }
 
-    /* 奢华极光 Hero Banner */
+    /* 低调雅致的通知卡片 (代替刺眼花哨的大 Banner) */
     .hero-banner {
-      background: linear-gradient(135deg, rgba(30, 27, 75, 0.7) 0%, rgba(15, 23, 42, 0.85) 100%);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      background: var(--bg-panel);
       border-radius: var(--radius-lg);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      padding: 48px 44px;
-      margin-bottom: 40px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      border: 1px solid var(--border);
+      padding: 30px;
+      margin-bottom: 28px;
+      box-shadow: var(--shadow);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 30px;
+      gap: 20px;
       flex-wrap: wrap;
-      position: relative;
-      overflow: hidden;
     }
 
-    .hero-banner::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: 400px;
-      height: 100%;
-      background: radial-gradient(circle at 80% 50%, rgba(168, 85, 247, 0.25) 0%, transparent 60%);
-      pointer-events: none;
-    }
-
-    .hero-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 14px;
-      border-radius: 30px;
-      background: rgba(99, 102, 241, 0.15);
-      border: 1px solid rgba(99, 102, 241, 0.35);
-      color: #a5b4fc;
-      font-size: 0.84rem;
-      font-weight: 700;
-      margin-bottom: 16px;
-      box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+    .hero-tag {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 6px;
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: #60a5fa;
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin-bottom: 10px;
     }
 
     .hero-title {
-      font-size: 2.35rem;
+      font-size: 1.65rem;
       font-weight: 800;
-      letter-spacing: -0.03em;
-      line-height: 1.25;
-      margin-bottom: 14px;
-      background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 50%, #a5b4fc 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+      color: #ffffff;
+      letter-spacing: -0.02em;
     }
 
     .hero-subtitle {
       color: var(--text-muted);
-      font-size: 1.05rem;
-      line-height: 1.65;
-      max-width: 640px;
-      margin-bottom: 28px;
+      font-size: 0.94rem;
+      line-height: 1.55;
+      max-width: 600px;
+      margin-bottom: 18px;
     }
 
     .hero-btn-group {
       display: flex;
-      gap: 16px;
+      gap: 12px;
       flex-wrap: wrap;
-      position: relative;
-      z-index: 2;
     }
 
-    /* 栏目标题与筛选 */
+    /* 栏目标题 */
     .section-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 26px;
+      margin-bottom: 18px;
       flex-wrap: wrap;
-      gap: 16px;
+      gap: 12px;
     }
 
     .section-title {
-      font-size: 1.5rem;
-      font-weight: 800;
-      letter-spacing: -0.02em;
+      font-size: 1.25rem;
+      font-weight: 700;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 8px;
       color: #ffffff;
     }
 
-    /* 商品网格与超感悬浮毛玻璃卡片 */
+    /* 商品网格 (纯静态高质感卡片，绝不卡顿) */
     .goods-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(295px, 1fr));
-      gap: 28px;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 20px;
     }
 
     .goods-card {
-      background: var(--bg-card);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: var(--bg-panel);
       border-radius: var(--radius);
-      border: 1px solid var(--border-glass);
+      border: 1px solid var(--border);
       overflow: hidden;
-      box-shadow: var(--shadow-glass);
       display: flex;
       flex-direction: column;
-      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-      position: relative;
+      transition: border-color 0.15s ease;
     }
 
     .goods-card:hover {
-      transform: translateY(-8px);
-      border-color: rgba(99, 102, 241, 0.4);
-      box-shadow: var(--shadow-hover);
+      border-color: #58a6ff;
     }
 
     .goods-cover-wrap {
       position: relative;
-      height: 185px;
-      background: #1e293b;
+      height: 155px;
+      background: #21262d;
       overflow: hidden;
     }
 
@@ -338,48 +263,41 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: transform 0.5s ease;
-    }
-
-    .goods-card:hover .goods-cover {
-      transform: scale(1.08);
     }
 
     .goods-badge-float {
       position: absolute;
-      top: 12px;
-      left: 12px;
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(10px);
-      color: #38bdf8;
-      font-size: 0.76rem;
+      top: 10px;
+      left: 10px;
+      background: #0d1117;
+      color: #58a6ff;
+      font-size: 0.72rem;
       font-weight: 700;
-      padding: 5px 12px;
-      border-radius: 8px;
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      padding: 3px 8px;
+      border-radius: 5px;
+      border: 1px solid var(--border);
     }
 
     .goods-body {
-      padding: 22px;
+      padding: 16px;
       display: flex;
       flex-direction: column;
       flex: 1;
     }
 
     .goods-title {
-      font-size: 1.18rem;
+      font-size: 1.08rem;
       font-weight: 700;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       line-height: 1.35;
       color: #ffffff;
     }
 
     .goods-desc {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: var(--text-muted);
-      line-height: 1.6;
-      margin-bottom: 20px;
+      line-height: 1.5;
+      margin-bottom: 16px;
       flex: 1;
       display: -webkit-box;
       -webkit-line-clamp: 3;
@@ -391,42 +309,38 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-top: 16px;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
     }
 
     .goods-price {
-      font-size: 1.45rem;
-      color: #fb7185;
+      font-size: 1.3rem;
+      color: #f85149;
       font-weight: 800;
-      letter-spacing: -0.02em;
-      text-shadow: 0 0 12px rgba(251, 113, 133, 0.3);
+      letter-spacing: -0.01em;
     }
 
     .goods-price small {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: 600;
-      margin-right: 2px;
     }
 
-    /* 模态弹窗 (深邃黑玻质感) */
+    /* 模态弹窗 (零模糊滤镜纯色遮罩，低性能设备秒关秒开) */
     .modal-overlay {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(4, 7, 13, 0.75);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: rgba(0, 0, 0, 0.75);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 100;
-      padding: 20px;
+      padding: 16px;
       opacity: 0;
       visibility: hidden;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: opacity 0.15s ease, visibility 0.15s ease;
     }
 
     .modal-overlay.active {
@@ -435,207 +349,186 @@
     }
 
     .modal-box {
-      background: #0f172a;
+      background: #161b22;
       border-radius: var(--radius-lg);
       width: 100%;
-      max-width: 530px;
-      box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.12);
-      transform: scale(0.95) translateY(10px);
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      max-width: 500px;
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.6);
+      border: 1px solid var(--border);
       display: flex;
       flex-direction: column;
       overflow: hidden;
     }
 
-    .modal-overlay.active .modal-box {
-      transform: scale(1) translateY(0);
-    }
-
     .modal-header {
-      padding: 20px 28px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(30, 41, 59, 0.4);
+      background: #1c2128;
     }
 
     .modal-title {
-      font-size: 1.25rem;
-      font-weight: 800;
+      font-size: 1.15rem;
+      font-weight: 700;
       color: #ffffff;
     }
 
     .modal-close {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
-      font-size: 1.2rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
+      background: transparent;
+      border: none;
       color: var(--text-muted);
-      transition: all 0.2s;
+      font-size: 1.4rem;
+      cursor: pointer;
+      line-height: 1;
     }
     .modal-close:hover {
-      background: rgba(255, 255, 255, 0.15);
       color: #ffffff;
     }
 
     .modal-body {
-      padding: 26px 28px;
+      padding: 20px 22px;
       overflow-y: auto;
-      max-height: 75vh;
+      max-height: 70vh;
     }
 
     .modal-footer {
-      padding: 18px 28px;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 14px 22px;
+      border-top: 1px solid var(--border);
       display: flex;
       justify-content: flex-end;
-      gap: 12px;
-      background: rgba(15, 23, 42, 0.6);
+      gap: 10px;
+      background: #1c2128;
     }
 
-    /* 表单控件 (暗黑微透) */
+    /* 常用表单 */
     .form-group {
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
 
     .form-label {
       display: block;
-      font-size: 0.9rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-      color: var(--text-secondary);
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text-main);
     }
 
     .form-input, .form-textarea {
       width: 100%;
-      padding: 12px 18px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 12px;
-      font-size: 0.96rem;
+      padding: 9px 13px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.92rem;
       outline: none;
-      background: rgba(15, 23, 42, 0.85);
+      background: #0d1117;
       color: #ffffff;
-      transition: all 0.2s;
     }
 
     .form-input:focus, .form-textarea:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+      border-color: #58a6ff;
     }
 
     .form-hint {
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       color: var(--text-muted);
-      margin-top: 6px;
+      margin-top: 4px;
     }
 
-    /* 状态徽章 */
+    /* 徽章 */
     .badge {
       display: inline-flex;
       align-items: center;
-      padding: 4px 10px;
-      border-radius: 8px;
-      font-size: 0.78rem;
-      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
     }
-    .badge-info { background: rgba(99, 102, 241, 0.2); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.3); }
-    .badge-warning { background: rgba(245, 158, 11, 0.2); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.3); }
-    .badge-success { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
-    .badge-danger { background: rgba(244, 63, 94, 0.2); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.3); }
+    .badge-info { background: #1f293d; color: #79c0ff; border: 1px solid #388bfd; }
+    .badge-warning { background: #341a04; color: #d29922; border: 1px solid #9e6a03; }
+    .badge-success { background: #0c2d1c; color: #56d364; border: 1px solid #238636; }
+    .badge-danger { background: #3c1618; color: #f85149; border: 1px solid #da3633; }
 
     .order-card {
-      border: 1px solid var(--border-glass);
-      border-radius: 14px;
-      padding: 18px;
-      margin-bottom: 16px;
-      background: rgba(30, 41, 59, 0.45);
-      box-shadow: var(--shadow-glass);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 12px;
+      background: #1c2128;
     }
 
     .order-header {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 10px;
-      font-size: 0.86rem;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
       color: var(--text-muted);
     }
 
     .order-reply-box {
-      background: rgba(16, 185, 129, 0.12);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      padding: 12px 16px;
-      border-radius: 10px;
-      margin-top: 12px;
-      font-size: 0.9rem;
-      color: #a7f3d0;
+      background: rgba(35, 134, 54, 0.15);
+      border: 1px solid #238636;
+      padding: 10px 12px;
+      border-radius: 6px;
+      margin-top: 8px;
+      font-size: 0.86rem;
+      color: #7ee787;
     }
 
-    /* Toast 浮窗 */
+    /* Toast */
     #toast-container {
       position: fixed;
-      top: 24px;
-      right: 24px;
+      top: 20px;
+      right: 20px;
       z-index: 9999;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
     }
     .toast {
-      background: rgba(15, 23, 42, 0.95);
-      backdrop-filter: blur(12px);
+      background: #21262d;
       color: white;
-      padding: 14px 20px;
-      border-radius: 14px;
-      font-size: 0.92rem;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.6);
-      border: 1px solid var(--border-glass);
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      border: 1px solid var(--border);
     }
-    .toast.success { border-left: 4px solid #10b981; }
-    .toast.error { border-left: 4px solid #f43f5e; }
-    .toast.warning { border-left: 4px solid #f59e0b; }
+    .toast.success { border-left: 4px solid #238636; }
+    .toast.error { border-left: 4px solid #da3633; }
 
     footer {
       text-align: center;
-      padding: 36px;
+      padding: 24px;
       color: var(--text-muted);
-      font-size: 0.88rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
-      background: rgba(9, 13, 22, 0.9);
-      margin-top: 60px;
+      font-size: 0.82rem;
+      border-top: 1px solid var(--border);
+      background: #161b22;
+      margin-top: 40px;
     }
   </style>
 </head>
 <body>
 
-  <!-- 顶部悬浮毛玻璃导航 -->
+  <!-- 顶部轻量导航 -->
   <nav class="navbar">
     <div class="nav-container">
       <a href="/" class="brand">
-        <div class="brand-icon">⚡</div>
-        <span id="site-name-display">星火卡密商城</span>
+        <div class="brand-icon">🛒</div>
+        <span id="site-name-display">便捷数字小铺</span>
       </a>
 
       <div class="nav-actions">
-        <div id="user-guest-zone" style="display: flex; gap: 10px;">
+        <div id="user-guest-zone" style="display: flex; gap: 8px;">
           <button class="btn btn-outline" onclick="openAuthModal('login')">登录</button>
           <button class="btn btn-primary" onclick="openAuthModal('register')">免费注册</button>
         </div>
 
-        <div id="user-logged-zone" style="display: none; align-items: center; gap: 14px;">
-          <div style="display: flex; align-items: center; gap: 12px; background: rgba(255, 255, 255, 0.06); padding: 8px 16px; border-radius: 12px; border: 1px solid var(--border-glass);">
-            <div style="font-size: 0.92rem; font-weight: 700; color: #ffffff;" id="nav-username">用户</div>
-            <div style="height: 14px; width: 1px; background: rgba(255, 255, 255, 0.2);"></div>
-            <div style="color: #fb7185; font-weight: 800; font-size: 0.98rem;">¥<span id="nav-balance">0.00</span></div>
+        <div id="user-logged-zone" style="display: none; align-items: center; gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 8px; background: #21262d; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border);">
+            <span style="font-size: 0.86rem; font-weight: 600; color: #ffffff;" id="nav-username">用户</span>
+            <span style="color: #8b949e;">|</span>
+            <span style="color: #f85149; font-weight: 700; font-size: 0.92rem;">¥<span id="nav-balance">0.00</span></span>
           </div>
 
           <button class="btn btn-gold btn-sm" onclick="openRedeemModal()">
@@ -647,7 +540,7 @@
           <button class="btn btn-outline btn-sm" onclick="logout()" title="退出登录">退出</button>
         </div>
 
-        <a href="/admin.html" class="btn btn-outline btn-sm" style="color: var(--text-muted); border-style: dashed;" target="_blank">
+        <a href="/admin.html" class="btn btn-outline btn-sm" style="color: var(--text-muted);" target="_blank">
           ⚙️ 站长后台
         </a>
       </div>
@@ -657,23 +550,22 @@
   <!-- 主体区域 -->
   <main class="container">
 
-    <!-- 极光 Hero Banner -->
+    <!-- 低调实用的信息横幅 -->
     <section class="hero-banner">
       <div>
-        <div class="hero-pill">
-          <span>✨</span>
-          <span>联动小铺自动发卡 · 卡密秒充秒到账</span>
+        <div class="hero-tag">
+          <span>⚡ 联动小铺现货发卡 · 自助兑换秒到账</span>
         </div>
-        <h1 class="hero-title">高品质数字权益与定制代办服务</h1>
+        <h1 class="hero-title">便捷虚拟服务与卡密兑换站</h1>
         <p class="hero-subtitle" id="site-announcement-display">
-          无需等待繁琐审批！在联动小铺购买专属充值卡密，回到本站秒换余额即可下单。站长在后台极速接单为您交付。
+          欢迎光临！在联动小铺拍下卡密后，复制到本站兑换余额即可直接下单，站长收到订单后极速人工为您处理。
         </p>
         <div class="hero-btn-group">
-          <button class="btn btn-gold" onclick="openRedeemModal()" style="font-size: 1rem; padding: 13px 26px;">
-            🎁 立即输入卡密兑换余额
+          <button class="btn btn-gold" onclick="openRedeemModal()" style="padding: 9px 18px; font-size: 0.92rem;">
+            🎁 输入卡密兑换余额
           </button>
-          <a id="liandong-shop-btn" href="javascript:void(0)" onclick="goToLiandongShop()" class="btn btn-outline" style="font-size: 1rem; padding: 13px 24px; font-weight: 600;">
-            🛒 前往联动小铺买卡密 →
+          <a id="liandong-shop-btn" href="javascript:void(0)" onclick="goToLiandongShop()" class="btn btn-outline" style="padding: 9px 18px; font-size: 0.92rem;">
+            🛒 去联动小铺购买卡密 →
           </a>
         </div>
       </div>
@@ -682,24 +574,24 @@
     <!-- 商品列表区域 -->
     <div class="section-header">
       <div class="section-title">
-        <span>🛍️ 精选在售服务</span>
+        <span>🛍️ 在售商品列表</span>
         <span class="badge badge-info" id="goods-count-badge">加载中...</span>
       </div>
-      <div style="font-size: 0.9rem; color: var(--text-muted); font-weight: 500;" id="contact-info-display">
+      <div style="font-size: 0.85rem; color: var(--text-muted);" id="contact-info-display">
         💬 客服联系：微信 ShopAdmin
       </div>
     </div>
 
-    <!-- 商品网格容器 -->
+    <!-- 商品网格 -->
     <div class="goods-grid" id="goods-container">
-      <div style="text-align: center; grid-column: 1/-1; padding: 60px; color: var(--text-muted);">
+      <div style="text-align: center; grid-column: 1/-1; padding: 40px; color: var(--text-muted);">
         正在加载商品列表...
       </div>
     </div>
   </main>
 
   <footer>
-    <p>© 2026 星火卡密商城与代办系统 · 极致现代·安全流转·高效交付</p>
+    <p>© 2026 便捷数字小铺 · 极速流畅·务实稳定</p>
   </footer>
 
   <div id="toast-container"></div>
@@ -712,8 +604,8 @@
         <button class="modal-close" onclick="closeModal('auth-modal')">×</button>
       </div>
       <div class="modal-body">
-        <div style="display: flex; background: rgba(255, 255, 255, 0.05); padding: 4px; border-radius: 12px; margin-bottom: 22px; border: 1px solid var(--border-glass);">
-          <button id="tab-login" class="btn" style="flex: 1; background: rgba(255, 255, 255, 0.1); color: white;" onclick="switchAuthTab('login')">登录</button>
+        <div style="display: flex; background: #21262d; padding: 3px; border-radius: 6px; margin-bottom: 16px;">
+          <button id="tab-login" class="btn" style="flex: 1; background: #30363d; color: white;" onclick="switchAuthTab('login')">登录</button>
           <button id="tab-register" class="btn" style="flex: 1; background: transparent; color: var(--text-muted);" onclick="switchAuthTab('register')">免费注册</button>
         </div>
 
@@ -730,7 +622,7 @@
             <label class="form-label">确认密码</label>
             <input type="password" id="auth-confirm-password" class="form-input" placeholder="请再次输入相同密码">
           </div>
-          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 13px; margin-top: 10px; font-size: 1rem;" id="auth-submit-btn">
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 10px; margin-top: 8px; font-size: 0.95rem;" id="auth-submit-btn">
             立即登录
           </button>
         </form>
@@ -746,21 +638,12 @@
         <button class="modal-close" onclick="closeModal('redeem-modal')">×</button>
       </div>
       <div class="modal-body">
-        <p style="color: var(--text-muted); font-size: 0.94rem; margin-bottom: 20px; line-height: 1.6;">
-          请输入您在“联动小铺”购买获取的卡密充值码，提交后系统秒级验证并将金额充入您的账户余额。
+        <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 16px; line-height: 1.5;">
+          请输入您在“联动小铺”下单获取的卡密码，提交后系统秒级验证并将金额充入您的账户余额。
         </p>
         <div class="form-group">
           <label class="form-label">卡密充值码</label>
-          <input type="text" id="redeem-code-input" class="form-input" placeholder="例如：CARD-XXXX-XXXX-XXXX" style="font-family: monospace; font-size: 1.15rem; font-weight: 700; text-transform: uppercase; color: #38bdf8; letter-spacing: 0.05em;">
-        </div>
-
-        <div style="background: rgba(99, 102, 241, 0.1); border: 1px dashed rgba(99, 102, 241, 0.35); padding: 16px; border-radius: 12px; margin-top: 18px;">
-          <div style="font-size: 0.85rem; color: #a5b4fc; font-weight: 700; margin-bottom: 10px;">💡 快速体验测试卡密（点击自动填入）：</div>
-          <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-            <button type="button" class="btn btn-outline btn-sm" onclick="fillTestCard('TEST-100RMB-AAAA-BBBB')">100元体验卡</button>
-            <button type="button" class="btn btn-outline btn-sm" onclick="fillTestCard('TEST-50RMB-CCCC-DDDD')">50元体验卡</button>
-            <button type="button" class="btn btn-outline btn-sm" onclick="fillTestCard('TEST-30RMB-EEEE-FFFF')">30元体验卡</button>
-          </div>
+          <input type="text" id="redeem-code-input" class="form-input" placeholder="例如：CARD-XXXX-XXXX-XXXX" style="font-family: monospace; font-size: 1.05rem; font-weight: 700; text-transform: uppercase; color: #58a6ff;">
         </div>
       </div>
       <div class="modal-footer">
@@ -778,30 +661,27 @@
         <button class="modal-close" onclick="closeModal('buy-modal')">×</button>
       </div>
       <div class="modal-body">
-        <div style="display: flex; gap: 16px; margin-bottom: 20px; align-items: center; background: rgba(255, 255, 255, 0.04); padding: 14px; border-radius: 12px; border: 1px solid var(--border-glass);">
-          <img id="buy-good-cover" src="" style="width: 72px; height: 72px; border-radius: 12px; object-fit: cover; background: #1e293b;">
-          <div style="flex: 1;">
-            <h4 id="buy-good-name" style="font-size: 1.15rem; font-weight: 700; margin-bottom: 4px; color: #ffffff;">商品名称</h4>
-            <div style="color: #fb7185; font-weight: 800; font-size: 1.4rem;">
-              ¥<span id="buy-good-price">0.00</span>
-            </div>
+        <div style="background: #21262d; padding: 14px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 16px;">
+          <h4 id="buy-good-name" style="font-size: 1.15rem; font-weight: 700; margin-bottom: 6px; color: #ffffff;">商品名称</h4>
+          <div style="color: #f85149; font-weight: 700; font-size: 1.35rem;">
+            ¥<span id="buy-good-price">0.00</span>
           </div>
         </div>
 
-        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-glass); padding: 14px; border-radius: 12px; margin-bottom: 20px; font-size: 0.92rem;">
+        <div style="background: #21262d; border: 1px solid var(--border); padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 0.88rem;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="color: var(--text-muted); font-weight: 500;">您的账户余额：</span>
-            <span style="font-weight: 800; color: #818cf8; font-size: 1.15rem;">¥<span id="buy-user-balance">0.00</span></span>
+            <span style="color: var(--text-muted);">您的账户余额：</span>
+            <span style="font-weight: 700; color: #58a6ff; font-size: 1.05rem;">¥<span id="buy-user-balance">0.00</span></span>
           </div>
-          <div id="buy-balance-status" style="font-size: 0.86rem; margin-top: 6px;"></div>
+          <div id="buy-balance-status" style="font-size: 0.82rem; margin-top: 4px;"></div>
         </div>
 
         <div class="form-group" id="buy-input-group">
           <label class="form-label" id="buy-input-label">
-            请填写代办指定信息 <span style="color: #fb7185;">*</span>
+            请填写代办指定信息 <span style="color: #f85149;">*</span>
           </label>
           <textarea id="buy-user-input" class="form-textarea" rows="3" placeholder="请在此输入账号/区服等相关信息..."></textarea>
-          <div class="form-hint" id="buy-input-hint">请仔细核对您填写的信息，站长将在后台加密查看并为您处理。</div>
+          <div class="form-hint" id="buy-input-hint">请仔细核对您填写的信息，站长将在后台安全查看并为您处理。</div>
         </div>
       </div>
       <div class="modal-footer">
@@ -813,13 +693,13 @@
 
   <!-- 模态框 4：我的订单 -->
   <div class="modal-overlay" id="orders-modal">
-    <div class="modal-box" style="max-width: 700px;">
+    <div class="modal-box" style="max-width: 650px;">
       <div class="modal-header">
         <div class="modal-title">📑 我的历史订单与进度</div>
         <button class="modal-close" onclick="closeModal('orders-modal')">×</button>
       </div>
       <div class="modal-body" id="orders-list-container" style="max-height: 65vh;">
-        <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+        <div style="text-align: center; padding: 30px; color: var(--text-muted);">
           正在加载订单...
         </div>
       </div>
@@ -830,7 +710,7 @@
     </div>
   </div>
 
-  <!-- 内嵌交互脚本 -->
+  <!-- 极简优化的交互脚本 -->
   <script>
     let currentUser = null;
     let currentGoodToBuy = null;
@@ -840,17 +720,9 @@
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
       toast.className = `toast ${type}`;
-      let icon = 'ℹ️';
-      if (type === 'success') icon = '✅';
-      if (type === 'error') icon = '❌';
-      if (type === 'warning') icon = '⚠️';
-      toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+      toast.innerHTML = `<span>${message}</span>`;
       container.appendChild(toast);
-      setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transition = 'all 0.3s ease';
-        setTimeout(() => toast.remove(), 300);
-      }, 3500);
+      setTimeout(() => { toast.remove(); }, 3000);
     }
 
     async function apiRequest(url, options = {}) {
@@ -948,22 +820,22 @@
       const badge = document.getElementById('goods-count-badge');
       const res = await apiRequest('/api/goods');
       if (res.code !== 200 || !res.data) {
-        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #f43f5e;">加载商品列表失败</div>';
+        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #f85149;">加载商品列表失败</div>';
         return;
       }
       const goods = res.data;
-      badge.textContent = `共 ${goods.length} 款服务`;
+      badge.textContent = `共 ${goods.length} 款`;
       if (goods.length === 0) {
-        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #94a3b8;">暂无在售商品</div>';
+        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #8b949e;">暂无商品</div>';
         return;
       }
       container.innerHTML = goods.map(item => `
         <div class="goods-card">
-          <div class="goods-cover-wrap">
-            <span class="goods-badge-float">${item.category || '虚拟服务'}</span>
-            <img class="goods-cover" src="${item.cover_url || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&auto=format&fit=crop&q=60'}" alt="${item.name}">
-          </div>
           <div class="goods-body">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <span class="badge badge-info">${escapeHtml(item.category || '虚拟服务')}</span>
+              <span style="font-size: 0.78rem; color: var(--text-muted);">库存: ${item.stock}</span>
+            </div>
             <h3 class="goods-title">${escapeHtml(item.name)}</h3>
             <p class="goods-desc">${escapeHtml(item.description || '无详细介绍')}</p>
             <div class="goods-footer">
@@ -990,10 +862,10 @@
       currentAuthTab = tab;
       const isLogin = tab === 'login';
       document.getElementById('auth-modal-title').textContent = isLogin ? '账号登录' : '免费注册账号';
-      document.getElementById('tab-login').style.background = isLogin ? 'rgba(255, 255, 255, 0.1)' : 'transparent';
-      document.getElementById('tab-login').style.color = isLogin ? 'white' : '#94a3b8';
-      document.getElementById('tab-register').style.background = !isLogin ? 'rgba(255, 255, 255, 0.1)' : 'transparent';
-      document.getElementById('tab-register').style.color = !isLogin ? 'white' : '#94a3b8';
+      document.getElementById('tab-login').style.background = isLogin ? '#30363d' : 'transparent';
+      document.getElementById('tab-login').style.color = isLogin ? 'white' : '#8b949e';
+      document.getElementById('tab-register').style.background = !isLogin ? '#30363d' : 'transparent';
+      document.getElementById('tab-register').style.color = !isLogin ? 'white' : '#8b949e';
       document.getElementById('register-confirm-group').style.display = isLogin ? 'none' : 'block';
       document.getElementById('auth-submit-btn').textContent = isLogin ? '立即登录' : '立即注册并登录';
     }
@@ -1035,10 +907,6 @@
       openModal('redeem-modal');
     }
 
-    function fillTestCard(code) {
-      document.getElementById('redeem-code-input').value = code;
-    }
-
     async function submitRedeem() {
       const code = document.getElementById('redeem-code-input').value.trim();
       if (!code) {
@@ -1076,12 +944,12 @@
 
       if (Number(currentUser.balance) < Number(good.price)) {
         const diff = (Number(good.price) - Number(currentUser.balance)).toFixed(2);
-        balanceStatus.innerHTML = `<span style="color: #fb7185; font-weight: 700;">⚠️ 余额不足 (尚缺 ¥${diff})</span> · <a href="javascript:void(0)" onclick="closeModal('buy-modal'); openRedeemModal();" style="color: #818cf8; text-decoration: underline;">去兑换卡密</a>`;
+        balanceStatus.innerHTML = `<span style="color: #f85149; font-weight: 700;">⚠️ 余额不足 (尚缺 ¥${diff})</span> · <a href="javascript:void(0)" onclick="closeModal('buy-modal'); openRedeemModal();" style="color: #58a6ff; text-decoration: underline;">去兑换卡密</a>`;
         confirmBtn.disabled = true;
         confirmBtn.style.opacity = '0.5';
         confirmBtn.textContent = '余额不足，无法购买';
       } else {
-        balanceStatus.innerHTML = `<span style="color: #34d399; font-weight: 700;">✅ 余额充足，购买后剩余 ¥${(Number(currentUser.balance) - Number(good.price)).toFixed(2)}</span>`;
+        balanceStatus.innerHTML = `<span style="color: #56d364; font-weight: 700;">✅ 余额充足，购买后剩余 ¥${(Number(currentUser.balance) - Number(good.price)).toFixed(2)}</span>`;
         confirmBtn.disabled = false;
         confirmBtn.style.opacity = '1';
         confirmBtn.textContent = '确认扣除余额下单';
@@ -1090,7 +958,7 @@
       const inputGroup = document.getElementById('buy-input-group');
       if (good.require_input) {
         inputGroup.style.display = 'block';
-        document.getElementById('buy-input-label').innerHTML = `${escapeHtml(good.input_placeholder || '请填写指定代办信息')} <span style="color: #fb7185;">*</span>`;
+        document.getElementById('buy-input-label').innerHTML = `${escapeHtml(good.input_placeholder || '请填写指定代办信息')} <span style="color: #f85149;">*</span>`;
         document.getElementById('buy-user-input').placeholder = `例如：${good.input_placeholder || '请输入您的账号或需求'}`;
         document.getElementById('buy-user-input').value = '';
       } else {
@@ -1129,7 +997,7 @@
         currentUser.balance = res.data.new_balance;
         updateUserUI(currentUser);
         closeModal('buy-modal');
-        setTimeout(() => { openOrdersModal(); }, 400);
+        setTimeout(() => { openOrdersModal(); }, 350);
       } else {
         showToast(res.message || '下单失败', 'error');
       }
@@ -1147,15 +1015,15 @@
 
     async function loadMyOrders() {
       const container = document.getElementById('orders-list-container');
-      container.innerHTML = '<div style="text-align:center; padding:30px; color:#94a3b8;">正在加载您的订单...</div>';
+      container.innerHTML = '<div style="text-align:center; padding:30px; color:#8b949e;">正在加载您的订单...</div>';
       const res = await apiRequest('/api/orders/my');
       if (res.code !== 200 || !res.data) {
-        container.innerHTML = '<div style="text-align:center; padding:30px; color:#f43f5e;">订单加载失败</div>';
+        container.innerHTML = '<div style="text-align:center; padding:30px; color:#f85149;">订单加载失败</div>';
         return;
       }
       const orders = res.data;
       if (orders.length === 0) {
-        container.innerHTML = '<div style="text-align:center; padding:40px; color:#94a3b8;">您暂无任何订单记录</div>';
+        container.innerHTML = '<div style="text-align:center; padding:40px; color:#8b949e;">您暂无任何订单记录</div>';
         return;
       }
       container.innerHTML = orders.map(order => {
@@ -1168,27 +1036,27 @@
               <span>单号：<strong style="color:#ffffff;">${order.order_no}</strong></span>
               <span>${statusBadge}</span>
             </div>
-            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px;">
-              <h4 style="font-size: 1.1rem; color:#ffffff;">${escapeHtml(order.goods_name)}</h4>
-              <span style="font-weight: 800; color: #fb7185; font-size: 1.2rem;">¥${Number(order.total_price).toFixed(2)}</span>
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+              <h4 style="font-size: 1.05rem; color:#ffffff;">${escapeHtml(order.goods_name)}</h4>
+              <span style="font-weight: 700; color: #f85149; font-size: 1.15rem;">¥${Number(order.total_price).toFixed(2)}</span>
             </div>
             ${order.user_inputs ? `
-              <div style="background: rgba(15, 23, 42, 0.7); padding: 10px 14px; border-radius: 8px; font-size: 0.88rem; margin-bottom: 8px; border: 1px solid var(--border-glass);">
-                <strong style="color: #38bdf8;">您提交的代办信息：</strong>
-                <div style="color: #f8fafc; margin-top: 4px; word-break: break-all;">${escapeHtml(order.user_inputs)}</div>
+              <div style="background: #0d1117; padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 6px; border: 1px solid var(--border);">
+                <strong style="color: #58a6ff;">您提交的代办信息：</strong>
+                <div style="color: #f0f6fc; margin-top: 3px; word-break: break-all;">${escapeHtml(order.user_inputs)}</div>
               </div>
             ` : ''}
             ${order.admin_reply ? `
               <div class="order-reply-box">
-                <strong style="display: block; margin-bottom: 4px; color:#34d399;">站长处理回执：</strong>
+                <strong style="display: block; margin-bottom: 3px; color:#7ee787;">站长处理回执：</strong>
                 <div style="word-break: break-all;">${escapeHtml(order.admin_reply)}</div>
               </div>
             ` : (order.status === 0 ? `
-              <div style="font-size: 0.84rem; color: #fcd34d; margin-top: 8px;">
+              <div style="font-size: 0.82rem; color: #d29922; margin-top: 6px;">
                 🕒 站长已收到您的订单，正在加急为您处理中...
               </div>
             ` : '')}
-            <div style="font-size: 0.78rem; color: #64748b; margin-top: 10px; text-align: right;">
+            <div style="font-size: 0.76rem; color: #8b949e; margin-top: 8px; text-align: right;">
               下单时间：${order.created_at}
             </div>
           </div>

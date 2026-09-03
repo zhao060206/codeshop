@@ -3,81 +3,82 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>站长管理后台 - 星火卡密商城</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+  <title>站长管理后台 - 便捷数字小铺</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚙️</text></svg>">
   <style>
     :root {
-      --bg-base: #090d16;
-      --bg-sidebar: #0f172a;
-      --bg-card: rgba(30, 41, 59, 0.55);
-      --primary: #6366f1;
-      --border-glass: rgba(255, 255, 255, 0.08);
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
+      --bg-body: #0d1117;
+      --bg-sidebar: #161b22;
+      --bg-panel: #161b22;
+      --bg-card: #1c2128;
+      --primary: #3b82f6;
+      --border: #30363d;
+      --text-main: #f0f6fc;
+      --text-muted: #8b949e;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg-base); color: var(--text-main); min-height: 100vh; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; transform: translateZ(0); }
+    body { background-color: var(--bg-body); color: var(--text-main); min-height: 100vh; }
     .admin-layout { display: flex; min-height: 100vh; }
-    .admin-sidebar { width: 250px; background: var(--bg-sidebar); color: #f8fafc; display: flex; flex-direction: column; flex-shrink: 0; border-right: 1px solid var(--border-glass); }
-    .admin-brand { padding: 24px 20px; font-size: 1.2rem; font-weight: 800; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border-glass); }
-    .brand-icon { background: linear-gradient(135deg, #6366f1, #a855f7); color: white; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; box-shadow: 0 0 15px rgba(99, 102, 241, 0.4); }
-    .admin-menu { list-style: none; padding: 16px 12px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
-    .admin-menu-item { padding: 11px 16px; border-radius: 12px; color: #94a3b8; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 0.94rem; font-weight: 600; transition: all 0.2s; }
-    .admin-menu-item:hover { background: rgba(255, 255, 255, 0.06); color: #ffffff; }
-    .admin-menu-item.active { background: linear-gradient(135deg, #6366f1, #4f46e5); color: #ffffff; box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4); }
-    .admin-menu-item .count-tag { margin-left: auto; background: #f43f5e; color: white; font-size: 0.72rem; padding: 2px 7px; border-radius: 10px; font-weight: 800; }
-    .admin-main { flex: 1; display: flex; flex-direction: column; overflow-x: hidden; background: var(--bg-base); }
-    .admin-topbar { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(16px); padding: 18px 28px; border-bottom: 1px solid var(--border-glass); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 40; }
-    .admin-content { padding: 32px 28px; flex: 1; max-width: 1400px; width: 100%; }
-    .stat-card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 22px; margin-bottom: 32px; }
-    .stat-card { background: var(--bg-card); backdrop-filter: blur(12px); border: 1px solid var(--border-glass); border-radius: 18px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); transition: transform 0.2s; }
-    .stat-card:hover { transform: translateY(-3px); border-color: rgba(99, 102, 241, 0.3); }
-    .stat-title { font-size: 0.88rem; font-weight: 600; color: var(--text-muted); margin-bottom: 10px; }
-    .stat-value { font-size: 2rem; font-weight: 800; color: #ffffff; }
-    .data-table-container { background: var(--bg-card); backdrop-filter: blur(12px); border-radius: 18px; border: 1px solid var(--border-glass); box-shadow: 0 10px 30px rgba(0,0,0,0.4); overflow-x: auto; }
-    .data-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.94rem; }
-    .data-table th { background: rgba(15, 23, 42, 0.6); padding: 16px 20px; border-bottom: 1px solid var(--border-glass); font-weight: 700; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; }
-    .data-table td { padding: 18px 20px; border-bottom: 1px solid var(--border-glass); vertical-align: middle; }
-    .data-table tr:hover { background: rgba(255, 255, 255, 0.03); }
-    .table-toolbar { padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; background: rgba(15, 23, 42, 0.6); border-bottom: 1px solid var(--border-glass); border-radius: 18px 18px 0 0; }
-    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 18px; font-size: 0.92rem; font-weight: 600; border-radius: 10px; cursor: pointer; border: 1px solid transparent; transition: all 0.2s; text-decoration: none; }
-    .btn-primary { background: linear-gradient(135deg, #6366f1, #4f46e5); color: #fff; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4); }
-    .btn-outline { background: rgba(255, 255, 255, 0.06); border-color: var(--border-glass); color: #cbd5e1; }
-    .btn-outline:hover { background: rgba(255, 255, 255, 0.12); color: white; }
-    .btn-gold { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
-    .btn-sm { padding: 6px 12px; font-size: 0.84rem; border-radius: 8px; }
-    .btn-danger { background: #f43f5e; color: white; }
-    .btn-success { background: #10b981; color: white; }
-    .form-group { margin-bottom: 20px; }
-    .form-label { display: block; font-size: 0.9rem; font-weight: 700; margin-bottom: 8px; color: #cbd5e1; }
-    .form-input, .form-textarea, .form-select { width: 100%; padding: 12px 16px; border: 1px solid var(--border-glass); border-radius: 10px; font-size: 0.95rem; outline: none; background: rgba(15, 23, 42, 0.8); color: white; }
-    .badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; }
-    .badge-info { background: rgba(99, 102, 241, 0.2); color: #a5b4fc; }
-    .badge-warning { background: rgba(245, 158, 11, 0.2); color: #fcd34d; }
-    .badge-success { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
-    .badge-danger { background: rgba(244, 63, 94, 0.2); color: #fda4af; }
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(4, 7, 13, 0.8); backdrop-filter: blur(16px); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; opacity: 0; visibility: hidden; transition: all 0.25s ease; }
+    .admin-sidebar { width: 230px; background: var(--bg-sidebar); color: #f8fafc; display: flex; flex-direction: column; flex-shrink: 0; border-right: 1px solid var(--border); }
+    .admin-brand { padding: 20px 16px; font-size: 1.12rem; font-weight: 700; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+    .brand-icon { background: #238636; color: white; width: 30px; height: 30px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+    .admin-menu { list-style: none; padding: 12px 8px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+    .admin-menu-item { padding: 10px 14px; border-radius: 8px; color: #8b949e; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 0.9rem; font-weight: 600; }
+    .admin-menu-item:hover { background: #21262d; color: #ffffff; }
+    .admin-menu-item.active { background: #1f293d; color: #79c0ff; border: 1px solid #388bfd; }
+    .admin-menu-item .count-tag { margin-left: auto; background: #da3633; color: white; font-size: 0.72rem; padding: 1px 6px; border-radius: 8px; font-weight: 700; }
+    .admin-main { flex: 1; display: flex; flex-direction: column; overflow-x: hidden; background: var(--bg-body); }
+    .admin-topbar { background: var(--bg-panel); padding: 14px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 40; }
+    .admin-content { padding: 24px; flex: 1; max-width: 1400px; width: 100%; }
+    .stat-card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 10px; padding: 18px; }
+    .stat-title { font-size: 0.82rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
+    .stat-value { font-size: 1.7rem; font-weight: 800; color: #ffffff; }
+    .data-table-container { background: var(--bg-panel); border-radius: 10px; border: 1px solid var(--border); overflow-x: auto; }
+    .data-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+    .data-table th { background: #1c2128; padding: 12px 16px; border-bottom: 1px solid var(--border); font-weight: 700; color: var(--text-muted); font-size: 0.82rem; }
+    .data-table td { padding: 14px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .data-table tr:hover { background: rgba(255, 255, 255, 0.02); }
+    .table-toolbar { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; background: #1c2128; border-bottom: 1px solid var(--border); border-radius: 10px 10px 0 0; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 14px; font-size: 0.88rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: 1px solid transparent; text-decoration: none; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-outline { background: #21262d; border: 1px solid var(--border); color: var(--text-main); }
+    .btn-outline:hover { background: #30363d; }
+    .btn-gold { background: #f59e0b; color: #0f172a; font-weight: 700; }
+    .btn-sm { padding: 5px 10px; font-size: 0.82rem; border-radius: 6px; }
+    .btn-danger { background: #da3633; color: white; }
+    .btn-success { background: #238636; color: white; }
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: #c9d1d9; }
+    .form-input, .form-textarea, .form-select { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; outline: none; background: #0d1117; color: white; }
+    .form-input:focus, .form-textarea:focus, .form-select:focus { border-color: #58a6ff; }
+    .badge { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 5px; font-size: 0.75rem; font-weight: 700; }
+    .badge-info { background: #1f293d; color: #79c0ff; border: 1px solid #388bfd; }
+    .badge-warning { background: #341a04; color: #d29922; border: 1px solid #9e6a03; }
+    .badge-success { background: #0c2d1c; color: #56d364; border: 1px solid #238636; }
+    .badge-danger { background: #3c1618; color: #f85149; border: 1px solid #da3633; }
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.75); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 16px; opacity: 0; visibility: hidden; transition: opacity 0.15s ease, visibility 0.15s ease; }
     .modal-overlay.active { opacity: 1; visibility: visible; }
-    .modal-box { background: #0f172a; border-radius: 20px; width: 100%; max-width: 540px; box-shadow: 0 30px 60px -15px rgba(0,0,0,0.8); border: 1px solid var(--border-glass); display: flex; flex-direction: column; overflow: hidden; }
-    .modal-header { padding: 20px 28px; border-bottom: 1px solid var(--border-glass); display: flex; justify-content: space-between; align-items: center; }
-    .modal-title { font-size: 1.25rem; font-weight: 800; color: white; }
-    .modal-close { background: rgba(255, 255, 255, 0.08); border: none; width: 34px; height: 34px; border-radius: 10px; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); }
-    .modal-body { padding: 26px 28px; overflow-y: auto; max-height: 75vh; }
-    .modal-footer { padding: 18px 28px; border-top: 1px solid var(--border-glass); display: flex; justify-content: flex-end; gap: 12px; background: rgba(15, 23, 42, 0.6); }
-    #toast-container { position: fixed; top: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
-    .toast { background: #0f172a; color: white; padding: 14px 20px; border-radius: 12px; font-size: 0.92rem; display: flex; align-items: center; gap: 12px; border: 1px solid var(--border-glass); }
-    #admin-login-lock { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(4, 7, 13, 0.85); backdrop-filter: blur(16px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .modal-box { background: #161b22; border-radius: 12px; width: 100%; max-width: 520px; box-shadow: 0 16px 32px rgba(0,0,0,0.8); border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+    .modal-header { padding: 16px 22px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #1c2128; }
+    .modal-title { font-size: 1.15rem; font-weight: 700; color: white; }
+    .modal-close { background: transparent; border: none; font-size: 1.4rem; cursor: pointer; color: var(--text-muted); line-height: 1; }
+    .modal-body { padding: 20px 22px; overflow-y: auto; max-height: 70vh; }
+    .modal-footer { padding: 14px 22px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; background: #1c2128; }
+    #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast { background: #21262d; color: white; padding: 10px 16px; border-radius: 6px; font-size: 0.88rem; border: 1px solid var(--border); }
+    #admin-login-lock { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 16px; }
   </style>
 </head>
 <body>
 
   <!-- 登录拦截层 -->
   <div id="admin-login-lock" style="display: none;">
-    <div style="background: #0f172a; width: 100%; max-width: 420px; padding: 36px; border-radius: 20px; box-shadow: 0 30px 60px -15px rgba(0,0,0,0.9); border: 1px solid var(--border-glass);">
-      <div style="text-align: center; margin-bottom: 28px;">
-        <div style="width: 56px; height: 56px; border-radius: 16px; background: linear-gradient(135deg, #6366f1, #a855f7); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 16px; box-shadow: 0 0 25px rgba(99,102,241,0.5);">🛡️</div>
-        <h2 style="font-size: 1.4rem; font-weight: 800; color: white;">站长管理身份验证</h2>
-        <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 6px;">请输入您的管理员账号与密码</p>
+    <div style="background: #161b22; width: 100%; max-width: 380px; padding: 30px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.9);">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <div style="width: 48px; height: 48px; border-radius: 10px; background: #238636; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 12px;">🛡️</div>
+        <h2 style="font-size: 1.25rem; font-weight: 700; color: white;">站长管理身份验证</h2>
+        <p style="color: var(--text-muted); font-size: 0.84rem; margin-top: 4px;">请输入管理员账号与密码</p>
       </div>
       <form onsubmit="handleAdminLogin(event)">
         <div class="form-group">
@@ -86,9 +87,9 @@
         </div>
         <div class="form-group">
           <label class="form-label">管理员密码</label>
-          <input type="password" id="lock-password" class="form-input" placeholder="输入管理密码" required>
+          <input type="password" id="lock-password" class="form-input" placeholder="输入密码" required>
         </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 13px; font-size: 1rem; margin-top: 12px;">
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 10px; font-size: 0.95rem; margin-top: 8px;">
           进入管理工作台
         </button>
       </form>
@@ -99,8 +100,8 @@
     <!-- 侧边栏 -->
     <aside class="admin-sidebar">
       <div class="admin-brand">
-        <div class="brand-icon">⚡</div>
-        <span>站长管理控制台</span>
+        <div class="brand-icon">⚙️</div>
+        <span>便捷数字小铺后台</span>
       </div>
       <ul class="admin-menu">
         <li class="admin-menu-item active" onclick="switchAdminTab('dashboard')" id="menu-dashboard">
@@ -120,8 +121,8 @@
           <span>⚙️ 站点与对接设置</span>
         </li>
       </ul>
-      <div style="padding: 18px; border-top: 1px solid var(--border-glass);">
-        <a href="/" target="_blank" class="btn btn-outline" style="width: 100%; font-size: 0.88rem;">
+      <div style="padding: 14px; border-top: 1px solid var(--border);">
+        <a href="/" target="_blank" class="btn btn-outline" style="width: 100%; font-size: 0.82rem;">
           🌐 预览商城前台
         </a>
       </div>
@@ -130,12 +131,9 @@
     <!-- 主体内容 -->
     <div class="admin-main">
       <header class="admin-topbar">
-        <div style="font-weight: 800; font-size: 1.25rem; color: white;" id="current-page-title">数据概览</div>
-        <div style="display: flex; align-items: center; gap: 16px;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(99,102,241,0.2); color: #a5b4fc; font-weight: 700; display: flex; align-items: center; justify-content: center;">管</div>
-            <span style="font-size: 0.92rem; font-weight: 600; color: white;" id="admin-user-display">admin</span>
-          </div>
+        <div style="font-weight: 700; font-size: 1.15rem; color: white;" id="current-page-title">数据概览</div>
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <span style="font-size: 0.88rem; color: var(--text-muted);">管理员: <strong style="color: white;" id="admin-user-display">admin</strong></span>
           <button class="btn btn-outline btn-sm" onclick="adminLogout()">退出登录</button>
         </div>
       </header>
@@ -144,26 +142,26 @@
         <!-- 1. 控制看板 -->
         <section id="pane-dashboard">
           <div class="stat-card-grid">
-            <div class="stat-card" style="border-top: 4px solid #f43f5e;">
+            <div class="stat-card" style="border-left: 3px solid #f85149;">
               <div class="stat-title">待处理订单 (需人工代办)</div>
-              <div class="stat-value" id="dash-pending-orders" style="color: #fb7185;">0</div>
+              <div class="stat-value" id="dash-pending-orders" style="color: #f85149;">0</div>
             </div>
-            <div class="stat-card" style="border-top: 4px solid #10b981;">
+            <div class="stat-card" style="border-left: 3px solid #56d364;">
               <div class="stat-title">今日销售流水</div>
               <div class="stat-value">¥<span id="dash-today-revenue">0.00</span></div>
             </div>
-            <div class="stat-card" style="border-top: 4px solid #6366f1;">
+            <div class="stat-card" style="border-left: 3px solid #58a6ff;">
               <div class="stat-title">累计销售总额</div>
               <div class="stat-value">¥<span id="dash-total-revenue">0.00</span></div>
             </div>
-            <div class="stat-card" style="border-top: 4px solid #f59e0b;">
+            <div class="stat-card" style="border-left: 3px solid #d29922;">
               <div class="stat-title">卡密库存 (未使用)</div>
               <div class="stat-value" id="dash-unused-cards">0</div>
             </div>
           </div>
 
-          <div style="display: flex; justify-content: space-between; align-items: center; margin: 36px 0 16px;">
-            <h3 style="font-size: 1.25rem; font-weight: 800; color: white;">🕒 待处理紧急订单</h3>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin: 24px 0 12px;">
+            <h3 style="font-size: 1.1rem; font-weight: 700; color: white;">🕒 待处理紧急订单</h3>
             <button class="btn btn-primary btn-sm" onclick="switchAdminTab('orders')">查看全部订单</button>
           </div>
           <div class="data-table-container">
@@ -180,7 +178,7 @@
                 </tr>
               </thead>
               <tbody id="dash-pending-table-body">
-                <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 40px;">暂无待处理订单</td></tr>
+                <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">暂无待处理订单</td></tr>
               </tbody>
             </table>
           </div>
@@ -189,15 +187,15 @@
         <!-- 2. 订单处理中心 -->
         <section id="pane-orders" style="display: none;">
           <div class="table-toolbar">
-            <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-              <select id="order-filter-status" class="form-select" style="width: 140px;" onchange="loadAdminOrders()">
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <select id="order-filter-status" class="form-select" style="width: 130px;" onchange="loadAdminOrders()">
                 <option value="">全部状态</option>
                 <option value="0" selected>⏳ 待处理</option>
                 <option value="1">✅ 已完成</option>
                 <option value="2">↩️ 已退款</option>
               </select>
-              <input type="text" id="order-search-input" class="form-input" style="width: 260px;" placeholder="搜索单号/买家/商品..." onkeydown="if(event.key==='Enter') loadAdminOrders()">
-              <button class="btn btn-outline" onclick="loadAdminOrders()">🔍 筛选</button>
+              <input type="text" id="order-search-input" class="form-input" style="width: 240px;" placeholder="搜索单号/买家/商品..." onkeydown="if(event.key==='Enter') loadAdminOrders()">
+              <button class="btn btn-outline btn-sm" onclick="loadAdminOrders()">🔍 筛选</button>
             </div>
             <button class="btn btn-outline btn-sm" onclick="loadAdminOrders()">🔄 刷新列表</button>
           </div>
@@ -217,7 +215,7 @@
                 </tr>
               </thead>
               <tbody id="admin-orders-table-body">
-                <tr><td colspan="9" style="text-align: center; padding: 40px;">加载中...</td></tr>
+                <tr><td colspan="9" style="text-align: center; padding: 30px;">加载中...</td></tr>
               </tbody>
             </table>
           </div>
@@ -225,9 +223,9 @@
 
         <!-- 3. 卡密批量生成 -->
         <section id="pane-cards" style="display: none;">
-          <div style="background: var(--bg-card); backdrop-filter: blur(12px); border-radius: 18px; border: 1px solid var(--border-glass); padding: 26px; margin-bottom: 28px;">
-            <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 16px; color: white;">⚡ 一键批量生成充值卡密（可直接导入联动小铺库存）</h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; align-items: flex-end;">
+          <div style="background: var(--bg-panel); border-radius: 10px; border: 1px solid var(--border); padding: 20px; margin-bottom: 20px;">
+            <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 14px; color: white;">⚡ 一键批量生成充值卡密（可直接导入联动小铺库存）</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; align-items: flex-end;">
               <div class="form-group" style="margin: 0;">
                 <label class="form-label">卡密面值 (元)</label>
                 <input type="number" id="gen-amount" class="form-input" value="50" min="1" step="0.01">
@@ -237,7 +235,7 @@
                 <input type="number" id="gen-count" class="form-input" value="10" min="1" max="500">
               </div>
               <div class="form-group" style="margin: 0;">
-                <label class="form-label">卡号前缀 (如 VIP)</label>
+                <label class="form-label">卡号前缀 (如 CARD)</label>
                 <input type="text" id="gen-prefix" class="form-input" value="VIP" maxlength="10">
               </div>
               <div class="form-group" style="margin: 0;">
@@ -245,7 +243,7 @@
                 <input type="text" id="gen-batch" class="form-input" placeholder="例如：联动小铺第1批">
               </div>
               <div>
-                <button class="btn btn-gold" style="width: 100%; padding: 12px;" onclick="generateCards()">
+                <button class="btn btn-gold" style="width: 100%; padding: 9px;" onclick="generateCards()">
                   ✨ 立即批量生成
                 </button>
               </div>
@@ -253,17 +251,17 @@
           </div>
 
           <div class="table-toolbar">
-            <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-              <select id="card-filter-status" class="form-select" style="width: 130px;" onchange="loadAdminCards()">
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <select id="card-filter-status" class="form-select" style="width: 120px;" onchange="loadAdminCards()">
                 <option value="">全部状态</option>
                 <option value="0" selected>未使用</option>
                 <option value="1">已使用</option>
                 <option value="2">已作废</option>
               </select>
-              <input type="text" id="card-search-input" class="form-input" style="width: 240px;" placeholder="搜索卡号/批次..." onkeydown="if(event.key==='Enter') loadAdminCards()">
-              <button class="btn btn-outline" onclick="loadAdminCards()">🔍 筛选</button>
+              <input type="text" id="card-search-input" class="form-input" style="width: 220px;" placeholder="搜索卡号..." onkeydown="if(event.key==='Enter') loadAdminCards()">
+              <button class="btn btn-outline btn-sm" onclick="loadAdminCards()">🔍 筛选</button>
             </div>
-            <div id="card-stat-summary" style="font-size: 0.9rem; color: var(--text-muted);"></div>
+            <div id="card-stat-summary" style="font-size: 0.85rem; color: var(--text-muted);"></div>
           </div>
           <div class="data-table-container">
             <table class="data-table">
@@ -280,7 +278,7 @@
                 </tr>
               </thead>
               <tbody id="admin-cards-table-body">
-                <tr><td colspan="8" style="text-align: center; padding: 40px;">加载中...</td></tr>
+                <tr><td colspan="8" style="text-align: center; padding: 30px;">加载中...</td></tr>
               </tbody>
             </table>
           </div>
@@ -288,15 +286,14 @@
 
         <!-- 4. 商品发布管理 -->
         <section id="pane-goods" style="display: none;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-            <h3 style="font-size: 1.25rem; font-weight: 800; color: white;">🛍️ 在售商品与服务列表</h3>
-            <button class="btn btn-primary" onclick="openGoodModal()">➕ 发布新商品</button>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: white;">🛍️ 在售商品列表</h3>
+            <button class="btn btn-primary btn-sm" onclick="openGoodModal()">➕ 发布新商品</button>
           </div>
           <div class="data-table-container">
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>封面</th>
                   <th>商品名称</th>
                   <th>价格</th>
                   <th>分类</th>
@@ -307,7 +304,7 @@
                 </tr>
               </thead>
               <tbody id="admin-goods-table-body">
-                <tr><td colspan="8" style="text-align: center; padding: 40px;">加载中...</td></tr>
+                <tr><td colspan="7" style="text-align: center; padding: 30px;">加载中...</td></tr>
               </tbody>
             </table>
           </div>
@@ -315,8 +312,8 @@
 
         <!-- 5. 站点配置与对接 -->
         <section id="pane-settings" style="display: none;">
-          <div style="background: var(--bg-card); backdrop-filter: blur(12px); border-radius: 18px; border: 1px solid var(--border-glass); padding: 28px; max-width: 780px;">
-            <h3 style="font-size: 1.2rem; margin-bottom: 22px; font-weight: 800; color: white;">⚙️ 站点基本配置与联动小铺对接</h3>
+          <div style="background: var(--bg-panel); border-radius: 10px; border: 1px solid var(--border); padding: 22px; max-width: 720px;">
+            <h3 style="font-size: 1.1rem; margin-bottom: 16px; font-weight: 700; color: white;">⚙️ 站点基本配置与联动小铺对接</h3>
             <form onsubmit="saveSettings(event)">
               <div class="form-group">
                 <label class="form-label">网站名称</label>
@@ -325,7 +322,7 @@
               <div class="form-group">
                 <label class="form-label">🛒 联动小铺店铺/卡密购买直达链接</label>
                 <input type="url" id="set-liandong-url" class="form-input" placeholder="例如：https://www.liandong.com/shop/xxxx">
-                <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 5px;">买家在前台点击“前往联动小铺买卡密”时将直接跳转到此链接。</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">买家在前台点击“去联动小铺购买卡密”时将直接跳转到此链接。</div>
               </div>
               <div class="form-group">
                 <label class="form-label">前台滚动公告内容</label>
@@ -335,12 +332,12 @@
                 <label class="form-label">客服联系信息展示</label>
                 <input type="text" id="set-contact-info" class="form-input">
               </div>
-              <button type="submit" class="btn btn-primary" style="padding: 12px 28px;">保存配置生效</button>
+              <button type="submit" class="btn btn-primary" style="padding: 9px 20px;">保存配置生效</button>
             </form>
 
-            <hr style="margin: 32px 0; border: 0; border-top: 1px solid var(--border-glass);">
+            <hr style="margin: 24px 0; border: 0; border-top: 1px solid var(--border);">
 
-            <h3 style="font-size: 1.2rem; margin-bottom: 18px; font-weight: 800; color: white;">🔐 修改管理员登录密码</h3>
+            <h3 style="font-size: 1.1rem; margin-bottom: 14px; font-weight: 700; color: white;">🔐 修改管理员登录密码</h3>
             <form onsubmit="changeAdminPassword(event)">
               <div class="form-group">
                 <label class="form-label">原密码</label>
@@ -350,7 +347,7 @@
                 <label class="form-label">新密码</label>
                 <input type="password" id="pw-new" class="form-input" required minlength="6">
               </div>
-              <button type="submit" class="btn btn-outline" style="padding: 12px 28px;">更新管理密码</button>
+              <button type="submit" class="btn btn-outline" style="padding: 9px 20px;">更新管理密码</button>
             </form>
           </div>
         </section>
@@ -368,14 +365,14 @@
         <button class="modal-close" onclick="closeModal('process-order-modal')">×</button>
       </div>
       <div class="modal-body">
-        <div style="background: rgba(255,255,255,0.04); padding: 14px; border-radius: 12px; border: 1px solid var(--border-glass); margin-bottom: 18px;">
+        <div style="background: #0d1117; padding: 12px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 14px;">
           <div>单号：<strong id="proc-order-no" style="color: white;"></strong></div>
           <div>商品：<strong id="proc-good-name" style="color: white;"></strong> (¥<span id="proc-price"></span>)</div>
           <div>买家账号：<strong id="proc-username" style="color: white;"></strong></div>
         </div>
-        <div style="background: rgba(99,102,241,0.12); padding: 14px; border-radius: 12px; border: 1px solid rgba(99,102,241,0.3); margin-bottom: 18px;">
-          <div style="font-weight: 800; color: #a5b4fc; margin-bottom: 6px;">买家填写的代办信息 (已解密)：</div>
-          <div id="proc-user-inputs" style="color: #f8fafc; word-break: break-all; white-space: pre-wrap;"></div>
+        <div style="background: rgba(59, 130, 246, 0.1); padding: 12px; border-radius: 8px; border: 1px solid #1f293d; margin-bottom: 14px;">
+          <div style="font-weight: 700; color: #79c0ff; margin-bottom: 4px;">买家填写的代办信息 (已解密)：</div>
+          <div id="proc-user-inputs" style="color: #f0f6fc; word-break: break-all; white-space: pre-wrap;"></div>
         </div>
         <div class="form-group">
           <label class="form-label">站长交付回执 / 处理结果说明</label>
@@ -391,16 +388,16 @@
 
   <!-- 卡密导出弹窗 -->
   <div class="modal-overlay" id="export-cards-modal">
-    <div class="modal-box" style="max-width: 600px;">
+    <div class="modal-box" style="max-width: 540px;">
       <div class="modal-header">
         <div class="modal-title">🎉 卡密批量生成成功！</div>
         <button class="modal-close" onclick="closeModal('export-cards-modal')">×</button>
       </div>
       <div class="modal-body">
-        <p style="color: var(--text-muted); font-size: 0.94rem; margin-bottom: 14px;">
+        <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 10px;">
           直接点击下方按钮<strong>一键复制</strong>，然后到<strong>联动小铺</strong>库存直接粘贴即可！
         </p>
-        <textarea id="export-cards-textarea" class="form-textarea" rows="10" readonly style="font-family: monospace; font-size: 0.95rem; font-weight: 700; color: #38bdf8;"></textarea>
+        <textarea id="export-cards-textarea" class="form-textarea" rows="10" readonly style="font-family: monospace; font-size: 0.92rem; font-weight: 700; color: #58a6ff;"></textarea>
       </div>
       <div class="modal-footer">
         <button class="btn btn-outline" onclick="closeModal('export-cards-modal')">关闭</button>
@@ -422,7 +419,7 @@
           <label class="form-label">商品名称 *</label>
           <input type="text" id="edit-good-name" class="form-input" required>
         </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div class="form-group">
             <label class="form-label">售价 (元) *</label>
             <input type="number" id="edit-good-price" class="form-input" min="0.01" step="0.01" required>
@@ -433,16 +430,12 @@
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">封面图片网址</label>
-          <input type="url" id="edit-good-cover" class="form-input">
-        </div>
-        <div class="form-group">
           <label class="form-label">商品说明</label>
           <textarea id="edit-good-desc" class="form-textarea" rows="2"></textarea>
         </div>
-        <div style="background: rgba(255,255,255,0.04); padding: 14px; border-radius: 12px; border: 1px solid var(--border-glass);">
-          <label style="display: flex; align-items: center; gap: 10px; font-weight: 700; margin-bottom: 8px; color: white;">
-            <input type="checkbox" id="edit-good-require-input" checked style="width: 17px; height: 17px;">
+        <div style="background: #0d1117; padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
+          <label style="display: flex; align-items: center; gap: 8px; font-weight: 700; margin-bottom: 6px; color: white;">
+            <input type="checkbox" id="edit-good-require-input" checked style="width: 16px; height: 16px;">
             要求买家在购买时填写指定代办信息
           </label>
           <input type="text" id="edit-good-placeholder" class="form-input" placeholder="例如：请填写【游戏账号+区服】">
@@ -464,9 +457,9 @@
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
       toast.className = `toast ${type}`;
-      toast.innerHTML = `<span>${type === 'success' ? '✅' : 'ℹ️'}</span><span>${message}</span>`;
+      toast.innerHTML = `<span>${message}</span>`;
       container.appendChild(toast);
-      setTimeout(() => { toast.remove(); }, 3500);
+      setTimeout(() => { toast.remove(); }, 3000);
     }
 
     async function adminApi(url, options = {}) {
@@ -573,14 +566,14 @@
               <td><strong style="color:white;">${o.order_no}</strong></td>
               <td style="color:white;">${escapeHtml(o.goods_name)}</td>
               <td><span class="badge badge-info">${escapeHtml(o.username)}</span></td>
-              <td style="color:#38bdf8; font-weight:600;">${escapeHtml(o.user_inputs || '无')}</td>
-              <td style="color:#fb7185; font-weight:800;">¥${Number(o.total_price).toFixed(2)}</td>
+              <td style="color:#58a6ff; font-weight:600;">${escapeHtml(o.user_inputs || '无')}</td>
+              <td style="color:#f85149; font-weight:700;">¥${Number(o.total_price).toFixed(2)}</td>
               <td style="font-size:0.8rem; color:var(--text-muted);">${o.created_at}</td>
               <td><button class="btn btn-primary btn-sm" onclick="openProcessModal(${JSON.stringify(o).replace(/"/g, '&quot;')})">处理</button></td>
             </tr>
           `).join('');
         } else {
-          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--text-muted);">暂无待处理订单</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:24px; color:var(--text-muted);">暂无待处理订单</td></tr>';
         }
       }
     }
@@ -604,8 +597,8 @@
             <td><strong style="color:white;">${o.order_no}</strong></td>
             <td style="color:white;">${escapeHtml(o.goods_name)}</td>
             <td><span class="badge badge-info">${escapeHtml(o.username)}</span></td>
-            <td style="color:#38bdf8; font-weight:600;">${escapeHtml(o.user_inputs || '无')}</td>
-            <td style="color:#fb7185; font-weight:800;">¥${Number(o.total_price).toFixed(2)}</td>
+            <td style="color:#58a6ff; font-weight:600;">${escapeHtml(o.user_inputs || '无')}</td>
+            <td style="color:#f85149; font-weight:700;">¥${Number(o.total_price).toFixed(2)}</td>
             <td>${o.status === 1 ? '<span class="badge badge-success">已完成</span>' : (o.status === 2 ? '<span class="badge badge-danger">已退款</span>' : '<span class="badge badge-warning">待处理</span>')}</td>
             <td>${escapeHtml(o.admin_reply || '-')}</td>
             <td style="font-size:0.8rem; color:var(--text-muted);">${o.created_at}</td>
@@ -680,11 +673,11 @@
       const tbody = document.getElementById('admin-cards-table-body');
       if (res.code === 200 && res.data) {
         const { cards, stats } = res.data;
-        document.getElementById('card-stat-summary').innerHTML = `总计: <strong>${stats.total_count}</strong> | 未使用: <strong style="color:#34d399;">${stats.unused_count}</strong>`;
+        document.getElementById('card-stat-summary').innerHTML = `总计: <strong>${stats.total_count}</strong> | 未使用: <strong style="color:#56d364;">${stats.unused_count}</strong>`;
         tbody.innerHTML = cards.map(c => `
           <tr>
-            <td><code style="color:#38bdf8;">${c.code}</code></td>
-            <td style="color:#fb7185; font-weight:800;">¥${Number(c.amount).toFixed(2)}</td>
+            <td><code style="color:#58a6ff;">${c.code}</code></td>
+            <td style="color:#f85149; font-weight:700;">¥${Number(c.amount).toFixed(2)}</td>
             <td>${c.status === 0 ? '<span class="badge badge-success">未使用</span>' : '<span class="badge badge-info">已兑换</span>'}</td>
             <td>${escapeHtml(c.batch_no || '-')}</td>
             <td>${c.used_username || '-'}</td>
@@ -708,12 +701,11 @@
       if (res.code === 200 && res.data) {
         tbody.innerHTML = res.data.map(g => `
           <tr>
-            <td><img src="${g.cover_url || ''}" style="width:40px; height:40px; border-radius:6px; object-fit:cover; background:#1e293b;"></td>
             <td style="color:white;"><strong>${escapeHtml(g.name)}</strong></td>
-            <td style="color:#fb7185; font-weight:800;">¥${Number(g.price).toFixed(2)}</td>
+            <td style="color:#f85149; font-weight:700;">¥${Number(g.price).toFixed(2)}</td>
             <td>${escapeHtml(g.category || '默认')}</td>
             <td>${g.require_input ? '<span class="badge badge-warning">需填写</span>' : '<span class="badge badge-info">无需填写</span>'}</td>
-            <td style="color:var(--text-muted);">${escapeHtml(g.input_placeholder || '-')}</td>
+            <td style="color:var(--text-muted); font-size:0.8rem;">${escapeHtml(g.input_placeholder || '-')}</td>
             <td>${g.status === 1 ? '<span class="badge badge-success">在售</span>' : '<span class="badge badge-danger">已下架</span>'}</td>
             <td>
               <button class="btn btn-outline btn-sm" onclick="editGood(${JSON.stringify(g).replace(/"/g, '&quot;')})">编辑</button>
@@ -729,7 +721,6 @@
       document.getElementById('edit-good-name').value = '';
       document.getElementById('edit-good-price').value = '';
       document.getElementById('edit-good-cat').value = '虚拟服务';
-      document.getElementById('edit-good-cover').value = 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&auto=format&fit=crop&q=60';
       document.getElementById('edit-good-desc').value = '';
       document.getElementById('edit-good-require-input').checked = true;
       document.getElementById('edit-good-placeholder').value = '请填写您的【账号 + 区服】';
@@ -742,7 +733,6 @@
       document.getElementById('edit-good-name').value = good.name;
       document.getElementById('edit-good-price').value = good.price;
       document.getElementById('edit-good-cat').value = good.category || '';
-      document.getElementById('edit-good-cover').value = good.cover_url || '';
       document.getElementById('edit-good-desc').value = good.description || '';
       document.getElementById('edit-good-require-input').checked = good.require_input === 1;
       document.getElementById('edit-good-placeholder').value = good.input_placeholder || '';
@@ -755,7 +745,7 @@
         name: document.getElementById('edit-good-name').value.trim(),
         price: parseFloat(document.getElementById('edit-good-price').value),
         category: document.getElementById('edit-good-cat').value.trim(),
-        cover_url: document.getElementById('edit-good-cover').value.trim(),
+        cover_url: '',
         description: document.getElementById('edit-good-desc').value.trim(),
         require_input: document.getElementById('edit-good-require-input').checked ? 1 : 0,
         input_placeholder: document.getElementById('edit-good-placeholder').value.trim(),
@@ -781,7 +771,7 @@
         document.getElementById('set-site-name').value = res.data.site_name || '';
         document.getElementById('set-liandong-url').value = res.data.liandong_shop_url || '';
         document.getElementById('set-site-announcement').value = res.data.site_announcement || '';
-        document.getElementById('set-contact-info').value = res.data.contact_info || '';
+        document.getElementById('contact-info-display') && (document.getElementById('contact-info-display').textContent = res.data.contact_info || '');
       }
     }
 
@@ -793,7 +783,7 @@
           site_name: document.getElementById('set-site-name').value.trim(),
           liandong_shop_url: document.getElementById('set-liandong-url').value.trim(),
           site_announcement: document.getElementById('set-site-announcement').value.trim(),
-          contact_info: document.getElementById('set-contact-info').value.trim()
+          contact_info: document.getElementById('set-contact-info') ? document.getElementById('set-contact-info').value.trim() : ''
         })
       });
       if (res.code === 200) { showToast('配置已保存生效！', 'success'); }
