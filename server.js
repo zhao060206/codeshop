@@ -505,14 +505,21 @@ app.post('/api/orders/create', authMiddleware, async (req, res) => {
       });
     }
 
-    const totalPrice = parseFloat((good.price * numQty).toFixed(2));
+    // 智能核算全场折扣
+    let discountRate = 1.0;
+    const rateRow = await db.get(`SELECT value FROM system_settings WHERE key = 'discount_rate';`);
+    if (rateRow && parseFloat(rateRow.value) > 0 && parseFloat(rateRow.value) < 1.0) {
+      discountRate = parseFloat(rateRow.value);
+    }
+    const finalUnitPrice = parseFloat((good.price * discountRate).toFixed(2));
+    const totalPrice = parseFloat((finalUnitPrice * numQty).toFixed(2));
 
     const user = await db.get('SELECT balance FROM users WHERE id = ?;', [req.user.id]);
     if (!user || user.balance < totalPrice) {
       const diff = (totalPrice - (user ? user.balance : 0)).toFixed(2);
       return res.status(400).json({
         code: 402,
-        message: `账户余额不足！本单需支付 ¥${totalPrice.toFixed(2)}，当前余额 ¥${(user ? user.balance : 0).toFixed(2)}（尚缺 ¥${diff}）。请先兑换卡密。`
+        message: `账户余额不足！本单折后需支付 ¥${totalPrice.toFixed(2)}，当前余额 ¥${(user ? user.balance : 0).toFixed(2)}（尚缺 ¥${diff}）。请先兑换卡密。`
       });
     }
 
@@ -534,7 +541,7 @@ app.post('/api/orders/create', authMiddleware, async (req, res) => {
       {
         sql: `INSERT INTO orders (order_no, user_id, username, goods_id, goods_name, price, quantity, total_price, user_inputs, status)
               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0);`,
-        args: [orderNo, req.user.id, req.user.username, good.id, good.name, good.price, numQty, totalPrice, encryptedUserInputs]
+        args: [orderNo, req.user.id, req.user.username, good.id, good.name, finalUnitPrice, numQty, totalPrice, encryptedUserInputs]
       },
       {
         sql: `INSERT INTO balance_logs (user_id, username, type, amount, balance_after, remark)
@@ -723,6 +730,37 @@ app.post('/api/admin/announcement', adminMiddleware, async (req, res) => {
     res.json({ code: 200, message: '站长公告已成功发布并全网实时同步！' });
   } catch (err) {
     res.status(500).json({ code: 500, message: '发布公告失败' });
+  }
+});
+
+// 站长一键全场折扣促销接口
+app.post('/api/admin/discount', adminMiddleware, async (req, res) => {
+  try {
+    const { discount_rate, discount_name } = req.body;
+    let rate = parseFloat(discount_rate);
+    if (isNaN(rate) || rate <= 0 || rate > 1) {
+      rate = 1.0;
+    }
+    const name = discount_name ? discount_name.trim() : (rate < 1.0 ? `全场限时 ${(rate * 10).toFixed(1)} 折特惠` : '');
+
+    await db.batch([
+      {
+        sql: `INSERT INTO system_settings (key, value) VALUES ('discount_rate', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value;`,
+        args: [rate.toString()]
+      },
+      {
+        sql: `INSERT INTO system_settings (key, value) VALUES ('discount_name', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value;`,
+        args: [name]
+      }
+    ]);
+
+    res.json({
+      code: 200,
+      message: rate < 1.0 ? `成功开启全场 ${(rate * 10).toFixed(1)} 折特惠活动！` : '已成功恢复全场原价！',
+      data: { discount_rate: rate, discount_name: name }
+    });
+  } catch (err) {
+    res.status(500).json({ code: 500, message: '设置全场折扣失败' });
   }
 });
 

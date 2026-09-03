@@ -497,39 +497,70 @@
     .toast.success { border-left: 4px solid #238636; }
     .toast.error { border-left: 4px solid #da3633; }
 
-    /* 站长置顶公告卡片 */
-    .notice-card {
-      background: #161b22;
-      border: 1px solid var(--border);
-      border-left: 4px solid #58a6ff;
+    /* 站长置顶超醒目广播条 */
+    .urgent-broadcast-bar {
+      background: #1c2128;
+      border: 1px solid #d29922;
+      border-left: 5px solid #f59e0b;
       border-radius: 8px;
-      padding: 14px 16px;
+      padding: 12px 18px;
       margin-bottom: 22px;
       display: flex;
-      align-items: flex-start;
-      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
     }
-    .notice-icon {
-      font-size: 1.25rem;
-      line-height: 1.2;
+    .urgent-broadcast-bar:hover {
+      background: #22272e;
+      border-color: #f59e0b;
     }
-    .notice-body {
+    .broadcast-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
       flex: 1;
+      overflow: hidden;
     }
-    .notice-title {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: #58a6ff;
-      margin-bottom: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
+    .broadcast-tag {
+      background: #f59e0b;
+      color: #0f172a;
+      font-size: 0.78rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 5px;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
-    .notice-content {
+    .broadcast-pulse {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #0f172a;
+      animation: pulseDot 1.5s infinite;
+    }
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .broadcast-title {
       color: #f0f6fc;
-      font-size: 0.92rem;
-      line-height: 1.55;
-      word-break: break-all;
-      white-space: pre-wrap;
+      font-size: 0.94rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .broadcast-btn {
+      color: #f59e0b;
+      font-size: 0.84rem;
+      font-weight: 700;
+      white-space: nowrap;
     }
 
     /* 移动端/手机端专用响应式适配 */
@@ -700,13 +731,16 @@
       </div>
     </section>
 
-    <!-- 站长置顶公告播报卡片 -->
-    <div class="notice-card" id="notice-broadcast-card">
-      <div class="notice-icon">📢</div>
-      <div class="notice-body">
-        <div class="notice-title">站长置顶公告</div>
-        <div class="notice-content" id="site-announcement-display">欢迎光临！在联动小铺拍下卡密后，复制到本站兑换余额即可直接下单，站长收到订单后极速人工为您处理。</div>
+    <!-- 站长置顶超醒目广播条 (点击直接弹出大公告弹窗) -->
+    <div class="urgent-broadcast-bar" id="notice-broadcast-bar" onclick="openAnnouncementModal()">
+      <div class="broadcast-left">
+        <span class="broadcast-tag">
+          <span class="broadcast-pulse"></span>
+          📢 重要公告
+        </span>
+        <span class="broadcast-title" id="site-announcement-summary">正在获取站长最新公告...</span>
       </div>
+      <span class="broadcast-btn">点击查看完整详情 ➔</span>
     </div>
 
     <!-- 商品列表区域 -->
@@ -733,6 +767,25 @@
   </footer>
 
   <div id="toast-container"></div>
+
+  <!-- 模态框 0：专属置顶大公告弹窗 -->
+  <div class="modal-overlay" id="announcement-modal">
+    <div class="modal-box" style="max-width: 560px;">
+      <div class="modal-header">
+        <div class="modal-title">📢 站长置顶公告</div>
+        <button class="modal-close" onclick="closeModal('announcement-modal')">×</button>
+      </div>
+      <div class="modal-body">
+        <div style="background: #21262d; border-left: 4px solid #f59e0b; padding: 16px 18px; border-radius: 6px; font-size: 0.98rem; line-height: 1.7; color: #f0f6fc; white-space: pre-wrap; font-weight: 500;" id="announcement-modal-text"></div>
+        <div style="margin-top: 14px; padding: 10px 14px; background: rgba(88, 166, 255, 0.1); border: 1px solid #1f293d; border-radius: 6px; font-size: 0.84rem; color: #79c0ff;" id="announcement-contact-tip"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-gold" style="width: 100%; padding: 10px; font-size: 0.95rem;" onclick="closeModal('announcement-modal')">
+          我已阅读并知晓
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- 模态框 1：登录/注册 -->
   <div class="modal-overlay" id="auth-modal">
@@ -889,6 +942,16 @@
       await loadGoods();
     });
 
+    // 专属大公告弹窗
+    function openAnnouncementModal() {
+      const text = siteSettings.site_announcement || '欢迎光临便捷数字小铺！';
+      const textEl = document.getElementById('announcement-modal-text');
+      if (textEl) textEl.textContent = text;
+      const contactEl = document.getElementById('announcement-contact-tip');
+      if (contactEl) contactEl.textContent = `💬 客服与联系方式：${siteSettings.contact_info || '微信 ShopAdmin'}`;
+      openModal('announcement-modal');
+    }
+
     async function loadSiteSettings() {
       const res = await apiRequest('/api/settings/public');
       if (res.code === 200 && res.data) {
@@ -898,7 +961,10 @@
           document.getElementById('site-name-display').textContent = siteSettings.site_name;
         }
         if (siteSettings.site_announcement) {
-          document.getElementById('site-announcement-display').textContent = siteSettings.site_announcement;
+          const summaryEl = document.getElementById('site-announcement-summary');
+          if (summaryEl) summaryEl.textContent = siteSettings.site_announcement;
+          const modalText = document.getElementById('announcement-modal-text');
+          if (modalText) modalText.textContent = siteSettings.site_announcement;
         }
         if (siteSettings.contact_info) {
           document.getElementById('contact-info-display').textContent = siteSettings.contact_info;
@@ -981,24 +1047,39 @@
         goodsMap[item.id] = item;
       });
 
-      container.innerHTML = goods.map(item => `
-        <div class="goods-card">
-          <div class="goods-body">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-              <span class="badge badge-info">${escapeHtml(item.category || '虚拟服务')}</span>
-              <span style="font-size: 0.78rem; color: var(--text-muted);">库存: ${item.stock}</span>
-            </div>
-            <h3 class="goods-title">${escapeHtml(item.name)}</h3>
-            <p class="goods-desc">${escapeHtml(item.description || '无详细介绍')}</p>
-            <div class="goods-footer">
-              <div class="goods-price"><small>¥</small>${Number(item.price).toFixed(2)}</div>
-              <button class="btn btn-primary btn-sm" onclick="handleBuyClick(${item.id})">
-                立即购买
-              </button>
+      // 读取当前全场折扣率
+      const discountRate = (siteSettings.discount_rate && parseFloat(siteSettings.discount_rate) > 0 && parseFloat(siteSettings.discount_rate) < 1.0) 
+        ? parseFloat(siteSettings.discount_rate) 
+        : 1.0;
+      const isDiscounting = discountRate < 1.0;
+
+      container.innerHTML = goods.map(item => {
+        const finalPrice = (item.price * discountRate).toFixed(2);
+        return `
+          <div class="goods-card">
+            <div class="goods-body">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div style="display:flex; gap:6px; align-items:center;">
+                  <span class="badge badge-info">${escapeHtml(item.category || '虚拟服务')}</span>
+                  ${isDiscounting ? `<span class="badge badge-danger">🔥 ${(discountRate * 10).toFixed(1)}折特惠</span>` : ''}
+                </div>
+                <span style="font-size: 0.78rem; color: var(--text-muted);">库存: ${item.stock}</span>
+              </div>
+              <h3 class="goods-title">${escapeHtml(item.name)}</h3>
+              <p class="goods-desc">${escapeHtml(item.description || '无详细介绍')}</p>
+              <div class="goods-footer">
+                <div style="display:flex; align-items:baseline; gap:6px;">
+                  <div class="goods-price"><small>¥</small>${finalPrice}</div>
+                  ${isDiscounting ? `<span style="font-size:0.8rem; color:var(--text-muted); text-decoration:line-through;">¥${Number(item.price).toFixed(2)}</span>` : ''}
+                </div>
+                <button class="btn btn-primary btn-sm" onclick="handleBuyClick(${item.id})">
+                  立即购买
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     function openModal(id) { document.getElementById(id).classList.add('active'); }
@@ -1089,21 +1170,26 @@
         return;
       }
       currentGoodToBuy = good;
+      const discountRate = (siteSettings.discount_rate && parseFloat(siteSettings.discount_rate) > 0 && parseFloat(siteSettings.discount_rate) < 1.0) 
+        ? parseFloat(siteSettings.discount_rate) 
+        : 1.0;
+      const finalPrice = parseFloat((good.price * discountRate).toFixed(2));
+
       document.getElementById('buy-good-name').textContent = good.name;
-      document.getElementById('buy-good-price').textContent = Number(good.price).toFixed(2);
+      document.getElementById('buy-good-price').textContent = Number(finalPrice).toFixed(2);
       document.getElementById('buy-user-balance').textContent = Number(currentUser.balance).toFixed(2);
 
       const balanceStatus = document.getElementById('buy-balance-status');
       const confirmBtn = document.getElementById('buy-confirm-btn');
 
-      if (Number(currentUser.balance) < Number(good.price)) {
-        const diff = (Number(good.price) - Number(currentUser.balance)).toFixed(2);
+      if (Number(currentUser.balance) < finalPrice) {
+        const diff = (finalPrice - Number(currentUser.balance)).toFixed(2);
         balanceStatus.innerHTML = `<span style="color: #f85149; font-weight: 700;">⚠️ 余额不足 (尚缺 ¥${diff})</span> · <a href="javascript:void(0)" onclick="closeModal('buy-modal'); openRedeemModal();" style="color: #58a6ff; text-decoration: underline;">去兑换卡密</a>`;
         confirmBtn.disabled = true;
         confirmBtn.style.opacity = '0.5';
         confirmBtn.textContent = '余额不足，无法购买';
       } else {
-        balanceStatus.innerHTML = `<span style="color: #56d364; font-weight: 700;">✅ 余额充足，购买后剩余 ¥${(Number(currentUser.balance) - Number(good.price)).toFixed(2)}</span>`;
+        balanceStatus.innerHTML = `<span style="color: #56d364; font-weight: 700;">✅ 余额充足，购买后剩余 ¥${(Number(currentUser.balance) - finalPrice).toFixed(2)}</span>${discountRate < 1.0 ? ` · <span style="color:#d29922;">已享${(discountRate * 10).toFixed(1)}折特惠</span>` : ''}`;
         confirmBtn.disabled = false;
         confirmBtn.style.opacity = '1';
         confirmBtn.textContent = '确认扣除余额下单';

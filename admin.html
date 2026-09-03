@@ -176,6 +176,35 @@
             </div>
           </div>
 
+          <!-- 全场一键折扣控制台 -->
+          <div style="background: #1c2128; border-radius: 10px; border: 1px solid var(--border); border-left: 4px solid #f59e0b; padding: 16px 20px; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.15rem;">⚡</span>
+                <h3 style="font-size: 1rem; font-weight: 700; color: white;">全场一键折扣与促销活动</h3>
+              </div>
+              <div id="current-discount-status" style="font-size: 0.84rem; font-weight: 700; color: #56d364;">
+                当前状态：原价销售中 (无折扣)
+              </div>
+            </div>
+            
+            <p style="color: var(--text-muted); font-size: 0.82rem; margin-bottom: 12px;">
+              点击下方快捷按钮即可一键开启全场促销打折，买家下单自动享受折后价，随时可一键恢复原价：
+            </p>
+
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+              <button class="btn btn-outline btn-sm" onclick="setQuickDiscount(0.95, '全场限时9.5折')">9.5折</button>
+              <button class="btn btn-outline btn-sm" onclick="setQuickDiscount(0.9, '全场限时9折特惠')">9折</button>
+              <button class="btn btn-outline btn-sm" onclick="setQuickDiscount(0.85, '全场限时8.5折大促')">8.5折</button>
+              <button class="btn btn-outline btn-sm" onclick="setQuickDiscount(0.8, '全场限时8折大降价')">8折</button>
+              <button class="btn btn-outline btn-sm" onclick="setQuickDiscount(0.7, '全场限时7折超值特惠')">7折</button>
+              <button class="btn btn-outline btn-sm" onclick="setQuickDiscount(0.5, '全场5折半价秒杀')">5折半价</button>
+              <button class="btn btn-primary btn-sm" style="background: #238636; border-color: #238636;" onclick="setQuickDiscount(1.0, '')">
+                🔄 一键恢复全场原价
+              </button>
+            </div>
+          </div>
+
           <div class="stat-card-grid">
             <div class="stat-card" style="border-left: 3px solid #f85149;">
               <div class="stat-title">待处理订单 (需人工代办)</div>
@@ -610,11 +639,15 @@
     }
 
     async function loadDashboard() {
-      // 同时加载当前已发布的公告内容回显
+      // 同时加载当前已发布的公告内容与折扣状态回显
       adminApi('/api/settings/public').then(res => {
-        if (res && res.code === 200 && res.data && res.data.site_announcement) {
-          const input = document.getElementById('quick-announcement-input');
-          if (input) input.value = res.data.site_announcement;
+        if (res && res.code === 200 && res.data) {
+          if (res.data.site_announcement) {
+            const input = document.getElementById('quick-announcement-input');
+            if (input) input.value = res.data.site_announcement;
+          }
+          const rate = res.data.discount_rate ? parseFloat(res.data.discount_rate) : 1.0;
+          updateDiscountStatusUI(rate, res.data.discount_name);
         }
       });
 
@@ -663,6 +696,40 @@
         showToast('站长公告已成功发布！全网买家实时同步可见', 'success');
       } else {
         showToast(res ? res.message : '发布失败', 'error');
+      }
+    }
+
+    // 站长一键全场折扣
+    async function setQuickDiscount(rate, name) {
+      const isRestore = rate >= 1.0;
+      const msg = isRestore 
+        ? '确定要恢复全场原价吗？所有商品将取消折扣标记。'
+        : `确定要一键开启【${(rate * 10).toFixed(1)}折】全场促销吗？买家下单将自动享受该折后价。`;
+      
+      if (!confirm(msg)) return;
+
+      const res = await adminApi('/api/admin/discount', {
+        method: 'POST',
+        body: JSON.stringify({ discount_rate: rate, discount_name: name })
+      });
+
+      if (res && res.code === 200) {
+        showToast(res.message, 'success');
+        updateDiscountStatusUI(rate, name);
+      } else {
+        showToast(res ? res.message : '设置失败', 'error');
+      }
+    }
+
+    function updateDiscountStatusUI(rate, name) {
+      const el = document.getElementById('current-discount-status');
+      if (!el) return;
+      if (rate < 1.0) {
+        el.style.color = '#f85149';
+        el.innerHTML = `🔥 当前全场活动中：<strong>${name || (rate * 10).toFixed(1) + '折'}</strong>`;
+      } else {
+        el.style.color = '#56d364';
+        el.innerHTML = `当前状态：原价销售中 (无折扣)`;
       }
     }
 
