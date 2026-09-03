@@ -4,12 +4,461 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>星火卡密商城与代办服务</title>
-  <link rel="stylesheet" href="/css/style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+  <style>
+    /* ==================== 现代科技商业风设计系统 ==================== */
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --bg-page: #f8fafc;
+      --bg-card: #ffffff;
+      --border: #e2e8f0;
+      --radius: 14px;
+      --radius-lg: 20px;
+      --shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+      --shadow-hover: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    body {
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    /* 导航栏 */
+    .navbar {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .nav-container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text-main);
+      font-size: 1.28rem;
+      font-weight: 800;
+    }
+    .brand-icon {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      color: white;
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+    }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    /* 按钮 */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 9px 18px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      line-height: 1.4;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #4338ca 0%, #3730a3 100%);
+      box-shadow: 0 6px 18px rgba(79, 70, 229, 0.35);
+      transform: translateY(-1px);
+    }
+    .btn-outline {
+      background: #ffffff;
+      border-color: #cbd5e1;
+      color: #334155;
+    }
+    .btn-outline:hover {
+      background: #f1f5f9;
+      color: var(--text-main);
+      transform: translateY(-1px);
+    }
+    .btn-glow-gold {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: white;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+    }
+    .btn-glow-gold:hover {
+      background: linear-gradient(135deg, #fbbf24 0%, #b45309 100%);
+      transform: translateY(-1px);
+    }
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 0.84rem;
+      border-radius: 8px;
+    }
+    /* 主容器 */
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 30px 24px;
+      flex: 1;
+      width: 100%;
+    }
+    /* Hero Banner */
+    .hero-banner {
+      background: radial-gradient(120% 120% at 50% 10%, #1e1b4b 0%, #0f172a 100%);
+      border-radius: var(--radius-lg);
+      color: white;
+      padding: 44px 40px;
+      margin-bottom: 36px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.4);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.12);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #c7d2fe;
+      margin-bottom: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .hero-title {
+      font-size: 2.1rem;
+      font-weight: 800;
+      line-height: 1.25;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-subtitle {
+      color: #94a3b8;
+      font-size: 1rem;
+      line-height: 1.6;
+      max-width: 620px;
+      margin-bottom: 24px;
+    }
+    .hero-btn-group {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    /* 栏目标题 */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .section-title {
+      font-size: 1.45rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    /* 商品卡片网格 */
+    .goods-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 26px;
+    }
+    .goods-card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+    .goods-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-hover);
+    }
+    .goods-cover-wrap {
+      position: relative;
+      height: 175px;
+      background: #e2e8f0;
+      overflow: hidden;
+    }
+    .goods-cover {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .goods-card:hover .goods-cover {
+      transform: scale(1.05);
+    }
+    .goods-badge-float {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(8px);
+      color: #ffffff;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+    .goods-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .goods-title {
+      font-size: 1.12rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      line-height: 1.35;
+    }
+    .goods-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+      margin-bottom: 18px;
+      flex: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .goods-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 14px;
+      border-top: 1px dashed var(--border);
+    }
+    .goods-price {
+      font-size: 1.35rem;
+      color: #e11d48;
+      font-weight: 800;
+    }
+    .goods-price small {
+      font-size: 0.82rem;
+    }
+    /* 模态框 */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.25s ease;
+    }
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    .modal-box {
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 530px;
+      box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .modal-header {
+      padding: 18px 26px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+    }
+    .modal-close {
+      background: #f1f5f9;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-muted);
+    }
+    .modal-body {
+      padding: 24px 26px;
+      overflow-y: auto;
+      max-height: 75vh;
+    }
+    .modal-footer {
+      padding: 16px 26px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      background: #f8fafc;
+    }
+    /* 表单组件 */
+    .form-group {
+      margin-bottom: 18px;
+    }
+    .form-label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #334155;
+    }
+    .form-input, .form-textarea {
+      width: 100%;
+      padding: 11px 16px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      outline: none;
+    }
+    .form-input:focus, .form-textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    }
+    .form-hint {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 5px;
+    }
+    /* 徽章与卡片 */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .badge-info { background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; }
+    .badge-warning { background: #fef3c7; color: #b45309; }
+    .badge-success { background: #d1fae5; color: #047857; }
+    .badge-danger { background: #fee2e2; color: #b91c1c; }
+    .order-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 14px;
+      background: white;
+    }
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .order-reply-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin-top: 10px;
+      font-size: 0.88rem;
+      color: #166534;
+    }
+    /* Toast */
+    #toast-container {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .toast {
+      background: #0f172a;
+      color: white;
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-size: 0.92rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+    }
+    .toast.success { border-left: 4px solid #10b981; }
+    .toast.error { border-left: 4px solid #ef4444; }
+    .toast.warning { border-left: 4px solid #f59e0b; }
+    footer {
+      text-align: center;
+      padding: 30px;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      border-top: 1px solid var(--border);
+      background: #ffffff;
+      margin-top: 50px;
+    }
+  </style>
 </head>
 <body>
 
-  <!-- 现代化毛玻璃顶部导航 -->
+  <!-- 顶部导航 -->
   <nav class="navbar">
     <div class="nav-container">
       <a href="/" class="brand">
@@ -17,7 +466,6 @@
         <span id="site-name-display">星火卡密商城</span>
       </a>
 
-      <!-- 导航右侧操作区 -->
       <div class="nav-actions">
         <div id="user-guest-zone" style="display: flex; gap: 10px;">
           <button class="btn btn-outline" onclick="openAuthModal('login')">登录</button>
@@ -50,7 +498,7 @@
   <!-- 主体区域 -->
   <main class="container">
 
-    <!-- 大厂级 Hero Banner -->
+    <!-- Hero Banner -->
     <section class="hero-banner">
       <div>
         <div class="hero-pill">
@@ -83,7 +531,7 @@
       </div>
     </div>
 
-    <!-- 商品网格卡片容器 -->
+    <!-- 商品网格容器 -->
     <div class="goods-grid" id="goods-container">
       <div style="text-align: center; grid-column: 1/-1; padding: 50px; color: var(--text-muted);">
         正在加载商品列表...
@@ -91,15 +539,13 @@
     </div>
   </main>
 
-  <!-- 页脚 -->
   <footer>
     <p>© 2026 星火卡密商城与代办系统 · 极致现代·安全流转·高效交付</p>
   </footer>
 
-  <!-- Toast 提示挂载点 -->
   <div id="toast-container"></div>
 
-  <!-- ==================== 模态框 1：登录/注册一体弹窗 ==================== -->
+  <!-- 模态框 1：登录/注册 -->
   <div class="modal-overlay" id="auth-modal">
     <div class="modal-box">
       <div class="modal-header">
@@ -108,7 +554,7 @@
       </div>
       <div class="modal-body">
         <div style="display: flex; background: #f1f5f9; padding: 4px; border-radius: 10px; margin-bottom: 22px;">
-          <button id="tab-login" class="btn" style="flex: 1; background: white; box-shadow: var(--shadow-sm);" onclick="switchAuthTab('login')">登录</button>
+          <button id="tab-login" class="btn" style="flex: 1; background: white;" onclick="switchAuthTab('login')">登录</button>
           <button id="tab-register" class="btn" style="flex: 1; background: transparent;" onclick="switchAuthTab('register')">免费注册</button>
         </div>
 
@@ -133,7 +579,7 @@
     </div>
   </div>
 
-  <!-- ==================== 模态框 2：卡密兑换弹窗 ==================== -->
+  <!-- 模态框 2：卡密兑换 -->
   <div class="modal-overlay" id="redeem-modal">
     <div class="modal-box">
       <div class="modal-header">
@@ -142,11 +588,11 @@
       </div>
       <div class="modal-body">
         <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 18px; line-height: 1.5;">
-          请输入您在“联动小铺”下单获取的卡密码，提交后系统秒级验证并将对应金额充入您的账户余额。
+          请输入您在“联动小铺”购买获取的卡密充值码，提交后系统秒级验证并将金额充入您的账户余额。
         </p>
         <div class="form-group">
           <label class="form-label">卡密充值码</label>
-          <input type="text" id="redeem-code-input" class="form-input" placeholder="例如：CARD-XXXX-XXXX-XXXX" style="font-family: monospace; font-size: 1.15rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">
+          <input type="text" id="redeem-code-input" class="form-input" placeholder="例如：CARD-XXXX-XXXX-XXXX" style="font-family: monospace; font-size: 1.15rem; font-weight: 700; text-transform: uppercase;">
         </div>
 
         <div style="background: #eff6ff; border: 1px dashed #93c5fd; padding: 14px; border-radius: 10px; margin-top: 16px;">
@@ -165,7 +611,7 @@
     </div>
   </div>
 
-  <!-- ==================== 模态框 3：商品定制下单购买弹窗 ==================== -->
+  <!-- 模态框 3：购买与定制下单 -->
   <div class="modal-overlay" id="buy-modal">
     <div class="modal-box">
       <div class="modal-header">
@@ -183,7 +629,7 @@
           </div>
         </div>
 
-        <div style="background: #ffffff; border: 1px solid var(--border); padding: 14px; border-radius: 10px; margin-bottom: 18px; font-size: 0.92rem; box-shadow: var(--shadow-sm);">
+        <div style="background: #ffffff; border: 1px solid var(--border); padding: 14px; border-radius: 10px; margin-bottom: 18px; font-size: 0.92rem;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <span style="color: var(--text-muted); font-weight: 500;">您的账户余额：</span>
             <span style="font-weight: 800; color: #4f46e5; font-size: 1.1rem;">¥<span id="buy-user-balance">0.00</span></span>
@@ -206,7 +652,7 @@
     </div>
   </div>
 
-  <!-- ==================== 模态框 4：我的订单中心 ==================== -->
+  <!-- 模态框 4：我的订单 -->
   <div class="modal-overlay" id="orders-modal">
     <div class="modal-box" style="max-width: 700px;">
       <div class="modal-header">
@@ -225,6 +671,380 @@
     </div>
   </div>
 
-  <script src="/js/app.js"></script>
+  <!-- 内嵌核心交互脚本，彻底免疫任何 404 文件路径问题 -->
+  <script>
+    let currentUser = null;
+    let currentGoodToBuy = null;
+    let siteSettings = {};
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      let icon = 'ℹ️';
+      if (type === 'success') icon = '✅';
+      if (type === 'error') icon = '❌';
+      if (type === 'warning') icon = '⚠️';
+      toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    async function apiRequest(url, options = {}) {
+      const token = localStorage.getItem('token');
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        ...options.headers
+      };
+      try {
+        const res = await fetch(url, { ...options, headers });
+        const data = await res.json();
+        if (res.status === 401) {
+          localStorage.removeItem('token');
+          updateUserUI(null);
+        }
+        return data;
+      } catch (err) {
+        console.error('API 请求异常:', err);
+        return { code: 500, message: '网络异常，请重试' };
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadSiteSettings();
+      await checkUserLogin();
+      await loadGoods();
+    });
+
+    async function loadSiteSettings() {
+      const res = await apiRequest('/api/settings/public');
+      if (res.code === 200 && res.data) {
+        siteSettings = res.data;
+        if (siteSettings.site_name) {
+          document.title = siteSettings.site_name;
+          document.getElementById('site-name-display').textContent = siteSettings.site_name;
+        }
+        if (siteSettings.site_announcement) {
+          document.getElementById('site-announcement-display').textContent = siteSettings.site_announcement;
+        }
+        if (siteSettings.contact_info) {
+          document.getElementById('contact-info-display').textContent = siteSettings.contact_info;
+        }
+      }
+    }
+
+    function goToLiandongShop() {
+      const url = siteSettings.liandong_shop_url;
+      if (url && url.startsWith('http')) {
+        window.open(url, '_blank');
+      } else {
+        showToast('站长尚未配置联动小铺具体链接，请联系客服获取卡密！', 'warning');
+      }
+    }
+
+    async function checkUserLogin() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        updateUserUI(null);
+        return;
+      }
+      const res = await apiRequest('/api/auth/me');
+      if (res.code === 200) {
+        currentUser = res.data;
+        updateUserUI(currentUser);
+      } else {
+        currentUser = null;
+        localStorage.removeItem('token');
+        updateUserUI(null);
+      }
+    }
+
+    function updateUserUI(user) {
+      const guestZone = document.getElementById('user-guest-zone');
+      const loggedZone = document.getElementById('user-logged-zone');
+      if (user) {
+        guestZone.style.display = 'none';
+        loggedZone.style.display = 'flex';
+        document.getElementById('nav-username').textContent = user.username;
+        document.getElementById('nav-balance').textContent = Number(user.balance).toFixed(2);
+      } else {
+        guestZone.style.display = 'flex';
+        loggedZone.style.display = 'none';
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('token');
+      currentUser = null;
+      updateUserUI(null);
+      showToast('您已退出登录', 'info');
+    }
+
+    async function loadGoods() {
+      const container = document.getElementById('goods-container');
+      const badge = document.getElementById('goods-count-badge');
+      const res = await apiRequest('/api/goods');
+      if (res.code !== 200 || !res.data) {
+        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #ef4444;">加载商品列表失败</div>';
+        return;
+      }
+      const goods = res.data;
+      badge.textContent = `共 ${goods.length} 款服务`;
+      if (goods.length === 0) {
+        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #64748b;">暂无在售商品</div>';
+        return;
+      }
+      container.innerHTML = goods.map(item => `
+        <div class="goods-card">
+          <div class="goods-cover-wrap">
+            <span class="goods-badge-float">${item.category || '虚拟服务'}</span>
+            <img class="goods-cover" src="${item.cover_url || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&auto=format&fit=crop&q=60'}" alt="${item.name}">
+          </div>
+          <div class="goods-body">
+            <h3 class="goods-title">${escapeHtml(item.name)}</h3>
+            <p class="goods-desc">${escapeHtml(item.description || '无详细介绍')}</p>
+            <div class="goods-footer">
+              <div class="goods-price"><small>¥</small>${Number(item.price).toFixed(2)}</div>
+              <button class="btn btn-primary btn-sm" onclick="openBuyModal(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+                立即购买
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openModal(id) { document.getElementById(id).classList.add('active'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+    let currentAuthTab = 'login';
+    function openAuthModal(tab = 'login') {
+      switchAuthTab(tab);
+      openModal('auth-modal');
+    }
+
+    function switchAuthTab(tab) {
+      currentAuthTab = tab;
+      const isLogin = tab === 'login';
+      document.getElementById('auth-modal-title').textContent = isLogin ? '账号登录' : '免费注册账号';
+      document.getElementById('tab-login').style.background = isLogin ? 'white' : 'transparent';
+      document.getElementById('tab-register').style.background = !isLogin ? 'white' : 'transparent';
+      document.getElementById('register-confirm-group').style.display = isLogin ? 'none' : 'block';
+      document.getElementById('auth-submit-btn').textContent = isLogin ? '立即登录' : '立即注册并登录';
+    }
+
+    async function handleAuthSubmit(e) {
+      e.preventDefault();
+      const username = document.getElementById('auth-username').value.trim();
+      const password = document.getElementById('auth-password').value;
+      if (currentAuthTab === 'register') {
+        const confirmPassword = document.getElementById('auth-confirm-password').value;
+        if (password !== confirmPassword) {
+          showToast('两次输入的密码不一致', 'error');
+          return;
+        }
+      }
+      const endpoint = currentAuthTab === 'login' ? '/api/auth/login' : '/api/auth/register';
+      const res = await apiRequest(endpoint, {
+        method: 'POST',
+        body: JSON.stringify({ username, password })
+      });
+      if (res.code === 200) {
+        showToast(res.message || '操作成功', 'success');
+        localStorage.setItem('token', res.data.token);
+        currentUser = res.data.user;
+        updateUserUI(currentUser);
+        closeModal('auth-modal');
+      } else {
+        showToast(res.message || '操作失败', 'error');
+      }
+    }
+
+    function openRedeemModal() {
+      if (!currentUser) {
+        showToast('请先登录账号后再兑换卡密', 'warning');
+        openAuthModal('login');
+        return;
+      }
+      document.getElementById('redeem-code-input').value = '';
+      openModal('redeem-modal');
+    }
+
+    function fillTestCard(code) {
+      document.getElementById('redeem-code-input').value = code;
+    }
+
+    async function submitRedeem() {
+      const code = document.getElementById('redeem-code-input').value.trim();
+      if (!code) {
+        showToast('请输入卡密', 'warning');
+        return;
+      }
+      const res = await apiRequest('/api/cards/redeem', {
+        method: 'POST',
+        body: JSON.stringify({ code })
+      });
+      if (res.code === 200) {
+        showToast(res.message, 'success');
+        currentUser.balance = res.data.new_balance;
+        updateUserUI(currentUser);
+        closeModal('redeem-modal');
+      } else {
+        showToast(res.message || '兑换失败', 'error');
+      }
+    }
+
+    function openBuyModal(good) {
+      if (!currentUser) {
+        showToast('请先登录账号后再进行购买', 'warning');
+        openAuthModal('login');
+        return;
+      }
+      currentGoodToBuy = good;
+      document.getElementById('buy-good-name').textContent = good.name;
+      document.getElementById('buy-good-price').textContent = Number(good.price).toFixed(2);
+      document.getElementById('buy-good-cover').src = good.cover_url || '';
+      document.getElementById('buy-user-balance').textContent = Number(currentUser.balance).toFixed(2);
+
+      const balanceStatus = document.getElementById('buy-balance-status');
+      const confirmBtn = document.getElementById('buy-confirm-btn');
+
+      if (Number(currentUser.balance) < Number(good.price)) {
+        const diff = (Number(good.price) - Number(currentUser.balance)).toFixed(2);
+        balanceStatus.innerHTML = `<span style="color: #e11d48; font-weight: 600;">⚠️ 余额不足 (尚缺 ¥${diff})</span> · <a href="javascript:void(0)" onclick="closeModal('buy-modal'); openRedeemModal();" style="color: var(--primary); text-decoration: underline;">去兑换卡密</a>`;
+        confirmBtn.disabled = true;
+        confirmBtn.style.opacity = '0.6';
+        confirmBtn.textContent = '余额不足，无法购买';
+      } else {
+        balanceStatus.innerHTML = `<span style="color: #047857; font-weight: 600;">✅ 余额充足，购买后剩余 ¥${(Number(currentUser.balance) - Number(good.price)).toFixed(2)}</span>`;
+        confirmBtn.disabled = false;
+        confirmBtn.style.opacity = '1';
+        confirmBtn.textContent = '确认扣除余额下单';
+      }
+
+      const inputGroup = document.getElementById('buy-input-group');
+      if (good.require_input) {
+        inputGroup.style.display = 'block';
+        document.getElementById('buy-input-label').innerHTML = `${escapeHtml(good.input_placeholder || '请填写指定代办信息')} <span style="color: #e11d48;">*</span>`;
+        document.getElementById('buy-user-input').placeholder = `例如：${good.input_placeholder || '请输入您的账号或需求'}`;
+        document.getElementById('buy-user-input').value = '';
+      } else {
+        inputGroup.style.display = 'none';
+      }
+      openModal('buy-modal');
+    }
+
+    async function submitOrder() {
+      if (!currentGoodToBuy) return;
+      let userInputs = '';
+      if (currentGoodToBuy.require_input) {
+        userInputs = document.getElementById('buy-user-input').value.trim();
+        if (!userInputs) {
+          showToast('请完整填写要求的指定信息，以便站长为您处理', 'warning');
+          return;
+        }
+      }
+      const confirmBtn = document.getElementById('buy-confirm-btn');
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = '正在提交订单...';
+
+      const res = await apiRequest('/api/orders/create', {
+        method: 'POST',
+        body: JSON.stringify({
+          goods_id: currentGoodToBuy.id,
+          quantity: 1,
+          user_inputs: userInputs
+        })
+      });
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = '确认扣除余额下单';
+
+      if (res.code === 200) {
+        showToast(res.message, 'success');
+        currentUser.balance = res.data.new_balance;
+        updateUserUI(currentUser);
+        closeModal('buy-modal');
+        setTimeout(() => { openOrdersModal(); }, 400);
+      } else {
+        showToast(res.message || '下单失败', 'error');
+      }
+    }
+
+    async function openOrdersModal() {
+      if (!currentUser) {
+        showToast('请先登录账号', 'warning');
+        openAuthModal('login');
+        return;
+      }
+      openModal('orders-modal');
+      await loadMyOrders();
+    }
+
+    async function loadMyOrders() {
+      const container = document.getElementById('orders-list-container');
+      container.innerHTML = '<div style="text-align:center; padding:30px; color:#64748b;">正在加载您的订单...</div>';
+      const res = await apiRequest('/api/orders/my');
+      if (res.code !== 200 || !res.data) {
+        container.innerHTML = '<div style="text-align:center; padding:30px; color:#ef4444;">订单加载失败</div>';
+        return;
+      }
+      const orders = res.data;
+      if (orders.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding:40px; color:#64748b;">您暂无任何订单记录</div>';
+        return;
+      }
+      container.innerHTML = orders.map(order => {
+        let statusBadge = '<span class="badge badge-warning">⏳ 待处理</span>';
+        if (order.status === 1) statusBadge = '<span class="badge badge-success">✅ 已完成</span>';
+        if (order.status === 2) statusBadge = '<span class="badge badge-danger">↩️ 已退款</span>';
+        return `
+          <div class="order-card">
+            <div class="order-header">
+              <span>单号：<strong>${order.order_no}</strong></span>
+              <span>${statusBadge}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+              <h4 style="font-size: 1.05rem;">${escapeHtml(order.goods_name)}</h4>
+              <span style="font-weight: 700; color: #e11d48; font-size: 1.1rem;">¥${Number(order.total_price).toFixed(2)}</span>
+            </div>
+            ${order.user_inputs ? `
+              <div style="background: #f8fafc; padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 6px; border: 1px solid var(--border);">
+                <strong style="color: #64748b;">您提交的代办信息：</strong>
+                <div style="color: #0f172a; margin-top: 2px; word-break: break-all;">${escapeHtml(order.user_inputs)}</div>
+              </div>
+            ` : ''}
+            ${order.admin_reply ? `
+              <div class="order-reply-box">
+                <strong style="display: block; margin-bottom: 2px;">站长处理回执：</strong>
+                <div style="word-break: break-all;">${escapeHtml(order.admin_reply)}</div>
+              </div>
+            ` : (order.status === 0 ? `
+              <div style="font-size: 0.82rem; color: #b45309; margin-top: 6px;">
+                🕒 站长已收到您的订单，正在加急为您处理中...
+              </div>
+            ` : '')}
+            <div style="font-size: 0.78rem; color: #64748b; margin-top: 8px; text-align: right;">
+              下单时间：${order.created_at}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
 </body>
 </html>

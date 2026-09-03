@@ -14,32 +14,35 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ==================== 智能静态资源路径探测 ====================
-// 解决在 GitHub 上传时可能出现的层级平铺或多层嵌套问题
-function findPublicDir() {
-  const possiblePaths = [
-    path.join(__dirname, 'public'),
-    path.join(__dirname, 'card-shop', 'public'),
-    path.join(process.cwd(), 'public'),
-    path.join(process.cwd(), 'card-shop', 'public'),
-    __dirname,
-    process.cwd()
-  ];
-  for (const p of possiblePaths) {
-    if (fs.existsSync(path.join(p, 'index.html'))) {
-      return p;
-    }
-  }
-  return path.join(__dirname, 'public');
-}
-
-const PUBLIC_DIR = findPublicDir();
-console.log(`[静态资源] 前端静态资源目录已定位到: ${PUBLIC_DIR}`);
-
-app.use(express.static(PUBLIC_DIR));
+// ==================== 全平铺静态资源托管 ====================
+// 无论文件在根目录还是 public 子目录，均全方位自适应托管
+app.use(express.static(__dirname));
 if (fs.existsSync(path.join(__dirname, 'public'))) {
   app.use(express.static(path.join(__dirname, 'public')));
 }
+
+// 首页与管理页显式路由
+app.get('/', (req, res) => {
+  const candidates = [
+    path.join(__dirname, 'index.html'),
+    path.join(__dirname, 'public', 'index.html')
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) return res.sendFile(p);
+  }
+  res.send('<h1>星火卡密商城运行中</h1>');
+});
+
+app.get('/admin.html', (req, res) => {
+  const candidates = [
+    path.join(__dirname, 'admin.html'),
+    path.join(__dirname, 'public', 'admin.html')
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) return res.sendFile(p);
+  }
+  res.send('<h1>站长管理后台</h1>');
+});
 
 // ==================== 安全 Token 机制 ====================
 function generateToken(user) {
@@ -104,8 +107,6 @@ function adminMiddleware(req, res, next) {
 }
 
 // ==================== 1. 用户认证模块 ====================
-
-// 注册
 app.post('/api/auth/register', (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
@@ -144,7 +145,6 @@ app.post('/api/auth/register', (req, res) => {
   }
 });
 
-// 登录
 app.post('/api/auth/login', (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
@@ -171,7 +171,6 @@ app.post('/api/auth/login', (req, res) => {
   });
 });
 
-// 获取当前用户信息及余额
 app.get('/api/auth/me', authMiddleware, (req, res) => {
   const user = db.prepare('SELECT id, username, balance, is_admin, created_at FROM users WHERE id = ?').get(req.user.id);
   if (!user) {
@@ -180,7 +179,6 @@ app.get('/api/auth/me', authMiddleware, (req, res) => {
   res.json({ code: 200, data: user });
 });
 
-// 修改密码
 app.post('/api/auth/change-password', authMiddleware, (req, res) => {
   const { oldPassword, newPassword } = req.body;
   if (!oldPassword || !newPassword) {
@@ -201,8 +199,6 @@ app.post('/api/auth/change-password', authMiddleware, (req, res) => {
 });
 
 // ==================== 2. 卡密兑换与管理模块 ====================
-
-// 买家前台：卡密兑换余额
 app.post('/api/cards/redeem', authMiddleware, (req, res) => {
   const { code } = req.body;
   if (!code || typeof code !== 'string') {
@@ -270,7 +266,6 @@ app.post('/api/cards/redeem', authMiddleware, (req, res) => {
   }
 });
 
-// 管理员：批量生成卡密
 app.post('/api/admin/cards/generate', adminMiddleware, (req, res) => {
   const { amount, count, prefix = 'CARD', batch_name = '' } = req.body;
   const numAmount = parseFloat(amount);
@@ -322,7 +317,6 @@ app.post('/api/admin/cards/generate', adminMiddleware, (req, res) => {
   }
 });
 
-// 管理员：获取卡密列表
 app.get('/api/admin/cards', adminMiddleware, (req, res) => {
   const { status, search, page = 1, limit = 50 } = req.query;
   const offset = (parseInt(page, 10) - 1) * parseInt(limit, 10);
@@ -379,7 +373,6 @@ app.get('/api/admin/cards', adminMiddleware, (req, res) => {
   });
 });
 
-// 管理员：作废卡密
 app.post('/api/admin/cards/:id/void', adminMiddleware, (req, res) => {
   const cardId = parseInt(req.params.id, 10);
   const card = db.prepare('SELECT * FROM cards WHERE id = ?').get(cardId);
@@ -395,8 +388,6 @@ app.post('/api/admin/cards/:id/void', adminMiddleware, (req, res) => {
 });
 
 // ==================== 3. 商品发布与展示模块 ====================
-
-// 买家端：获取已上架商品
 app.get('/api/goods', (req, res) => {
   const goods = db.prepare(`
     SELECT id, name, price, category, description, cover_url, require_input, input_placeholder, stock 
@@ -407,7 +398,6 @@ app.get('/api/goods', (req, res) => {
   res.json({ code: 200, data: goods });
 });
 
-// 买家端：获取商品详情
 app.get('/api/goods/:id', (req, res) => {
   const good = db.prepare('SELECT * FROM goods WHERE id = ? AND status = 1').get(req.params.id);
   if (!good) {
@@ -416,13 +406,11 @@ app.get('/api/goods/:id', (req, res) => {
   res.json({ code: 200, data: good });
 });
 
-// 管理员端：获取所有商品
 app.get('/api/admin/goods', adminMiddleware, (req, res) => {
   const goods = db.prepare('SELECT * FROM goods ORDER BY sort_order ASC, id DESC').all();
   res.json({ code: 200, data: goods });
 });
 
-// 管理员端：新增商品
 app.post('/api/admin/goods', adminMiddleware, (req, res) => {
   const { name, price, category, description, cover_url, require_input, input_placeholder, stock, sort_order } = req.body;
   if (!name || price === undefined) {
@@ -454,7 +442,6 @@ app.post('/api/admin/goods', adminMiddleware, (req, res) => {
   res.json({ code: 200, message: '商品发布成功', data: { id: Number(result.lastInsertRowid) } });
 });
 
-// 管理员端：修改商品
 app.put('/api/admin/goods/:id', adminMiddleware, (req, res) => {
   const goodId = parseInt(req.params.id, 10);
   const { name, price, category, description, cover_url, require_input, input_placeholder, stock, sort_order, status } = req.body;
@@ -485,7 +472,6 @@ app.put('/api/admin/goods/:id', adminMiddleware, (req, res) => {
   res.json({ code: 200, message: '商品修改成功' });
 });
 
-// 管理员端：切换商品上下架
 app.patch('/api/admin/goods/:id/status', adminMiddleware, (req, res) => {
   const goodId = parseInt(req.params.id, 10);
   const { status } = req.body;
@@ -494,8 +480,6 @@ app.patch('/api/admin/goods/:id/status', adminMiddleware, (req, res) => {
 });
 
 // ==================== 4. 订单与代办处理模块 ====================
-
-// 买家端：用余额下单购买商品
 app.post('/api/orders/create', authMiddleware, (req, res) => {
   const { goods_id, quantity = 1, user_inputs } = req.body;
   const numQty = parseInt(quantity, 10);
@@ -588,7 +572,6 @@ app.post('/api/orders/create', authMiddleware, (req, res) => {
   }
 });
 
-// 买家端：查看自己的订单列表
 app.get('/api/orders/my', authMiddleware, (req, res) => {
   const orders = db.prepare(`
     SELECT * FROM orders 
@@ -598,7 +581,6 @@ app.get('/api/orders/my', authMiddleware, (req, res) => {
   res.json({ code: 200, data: orders });
 });
 
-// 管理员端：获取所有订单
 app.get('/api/admin/orders', adminMiddleware, (req, res) => {
   const { status, search, page = 1, limit = 50 } = req.query;
   const offset = (parseInt(page, 10) - 1) * parseInt(limit, 10);
@@ -650,7 +632,6 @@ app.get('/api/admin/orders', adminMiddleware, (req, res) => {
   });
 });
 
-// 管理员端：处理订单
 app.post('/api/admin/orders/:id/process', adminMiddleware, (req, res) => {
   const orderId = parseInt(req.params.id, 10);
   const { status, admin_reply } = req.body;
@@ -711,8 +692,6 @@ app.post('/api/admin/orders/:id/process', adminMiddleware, (req, res) => {
 });
 
 // ==================== 5. 系统设置与数据看板模块 ====================
-
-// 公开：站点基础配置
 app.get('/api/settings/public', (req, res) => {
   const rows = db.prepare('SELECT key, value FROM system_settings').all();
   const settings = {};
@@ -722,7 +701,6 @@ app.get('/api/settings/public', (req, res) => {
   res.json({ code: 200, data: settings });
 });
 
-// 管理员：保存配置
 app.post('/api/admin/settings', adminMiddleware, (req, res) => {
   const { site_name, site_announcement, contact_info, liandong_shop_url } = req.body;
 
@@ -739,7 +717,6 @@ app.post('/api/admin/settings', adminMiddleware, (req, res) => {
   res.json({ code: 200, message: '站点配置已更新生效' });
 });
 
-// 管理员：数据看板统计
 app.get('/api/admin/dashboard', adminMiddleware, (req, res) => {
   const userCount = db.prepare('SELECT COUNT(*) as count FROM users WHERE is_admin = 0').get().count;
 
@@ -782,7 +759,6 @@ app.get('/api/admin/dashboard', adminMiddleware, (req, res) => {
   });
 });
 
-// 买家端查看自己的余额变动流水
 app.get('/api/balance/logs', authMiddleware, (req, res) => {
   const logs = db.prepare(`
     SELECT * FROM balance_logs WHERE user_id = ? ORDER BY id DESC LIMIT 50
@@ -790,21 +766,21 @@ app.get('/api/balance/logs', authMiddleware, (req, res) => {
   res.json({ code: 200, data: logs });
 });
 
-// 根路由及前台单页兜底 (自适应 index.html 路径)
+// 兜底路由
 app.get('*', (req, res) => {
-  const indexPath = path.join(PUBLIC_DIR, 'index.html');
-  if (fs.existsSync(indexPath)) {
-    return res.sendFile(indexPath);
+  if (req.path.includes('.')) {
+    return res.status(404).send('File Not Found');
   }
-  res.status(404).send(`
-    <div style="font-family: sans-serif; text-align: center; padding: 50px;">
-      <h2>⚡ 商城服务运行正常</h2>
-      <p style="color: #64748b;">未找到前端网页文件，请确认是否已将 <code>public</code> 文件夹完整上传至仓库。</p>
-    </div>
-  `);
+  const candidates = [
+    path.join(__dirname, 'index.html'),
+    path.join(__dirname, 'public', 'index.html')
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) return res.sendFile(p);
+  }
+  res.send('<h1>星火卡密商城运行中</h1>');
 });
 
-// 启动监听
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`===================================================`);
   console.log(`🌟 星火卡密商城与代办系统 已成功启动！`);
