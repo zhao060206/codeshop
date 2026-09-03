@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>星火卡密商城与代办服务</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+</head>
+<body>
+
+  <!-- 现代化毛玻璃顶部导航 -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="brand">
+        <div class="brand-icon">⚡</div>
+        <span id="site-name-display">星火卡密商城</span>
+      </a>
+
+      <!-- 导航右侧操作区 -->
+      <div class="nav-actions">
+        <div id="user-guest-zone" style="display: flex; gap: 10px;">
+          <button class="btn btn-outline" onclick="openAuthModal('login')">登录</button>
+          <button class="btn btn-primary" onclick="openAuthModal('register')">免费注册</button>
+        </div>
+
+        <div id="user-logged-zone" style="display: none; align-items: center; gap: 14px;">
+          <div style="display: flex; align-items: center; gap: 10px; background: #f1f5f9; padding: 6px 12px; border-radius: 10px;">
+            <div style="font-size: 0.9rem; font-weight: 700; color: var(--text-main);" id="nav-username">用户</div>
+            <div style="height: 14px; width: 1px; background: #cbd5e1;"></div>
+            <div style="color: #e11d48; font-weight: 800; font-size: 0.95rem;">¥<span id="nav-balance">0.00</span></div>
+          </div>
+
+          <button class="btn btn-glow-gold btn-sm" onclick="openRedeemModal()">
+            <span>🎁 兑换卡密</span>
+          </button>
+          <button class="btn btn-outline btn-sm" onclick="openOrdersModal()">
+            <span>📑 我的订单</span>
+          </button>
+          <button class="btn btn-outline btn-sm" onclick="logout()" title="退出登录">退出</button>
+        </div>
+
+        <a href="/admin.html" class="btn btn-outline btn-sm" style="color: var(--text-muted); border-style: dashed;" target="_blank">
+          ⚙️ 站长后台
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 主体区域 -->
+  <main class="container">
+
+    <!-- 大厂级 Hero Banner -->
+    <section class="hero-banner">
+      <div>
+        <div class="hero-pill">
+          <span>✨</span>
+          <span>联动小铺自动发卡 · 卡密秒充秒到账</span>
+        </div>
+        <h1 class="hero-title">高品质数字权益与定制代办服务</h1>
+        <p class="hero-subtitle" id="site-announcement-display">
+          无需等待繁琐审批！在联动小铺购买专属充值卡密，回到本站秒换余额即可下单。站长在后台极速接单为您交付。
+        </p>
+        <div class="hero-btn-group">
+          <button class="btn btn-glow-gold" onclick="openRedeemModal()" style="font-size: 1rem; padding: 12px 24px;">
+            🎁 立即输入卡密兑换余额
+          </button>
+          <a id="liandong-shop-btn" href="javascript:void(0)" onclick="goToLiandongShop()" class="btn btn-outline" style="background: white; color: var(--primary); font-size: 1rem; padding: 12px 22px;">
+            🛒 前往联动小铺买卡密 →
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 商品列表区域 -->
+    <div class="section-header">
+      <div class="section-title">
+        <span>🛍️ 精选在售服务</span>
+        <span class="badge badge-info" id="goods-count-badge">加载中...</span>
+      </div>
+      <div style="font-size: 0.9rem; color: var(--text-muted); font-weight: 500;" id="contact-info-display">
+        💬 客服联系：微信 ShopAdmin
+      </div>
+    </div>
+
+    <!-- 商品网格卡片容器 -->
+    <div class="goods-grid" id="goods-container">
+      <div style="text-align: center; grid-column: 1/-1; padding: 50px; color: var(--text-muted);">
+        正在加载商品列表...
+      </div>
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer>
+    <p>© 2026 星火卡密商城与代办系统 · 极致现代·安全流转·高效交付</p>
+  </footer>
+
+  <!-- Toast 提示挂载点 -->
+  <div id="toast-container"></div>
+
+  <!-- ==================== 模态框 1：登录/注册一体弹窗 ==================== -->
+  <div class="modal-overlay" id="auth-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title" id="auth-modal-title">账号登录</div>
+        <button class="modal-close" onclick="closeModal('auth-modal')">×</button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; background: #f1f5f9; padding: 4px; border-radius: 10px; margin-bottom: 22px;">
+          <button id="tab-login" class="btn" style="flex: 1; background: white; box-shadow: var(--shadow-sm);" onclick="switchAuthTab('login')">登录</button>
+          <button id="tab-register" class="btn" style="flex: 1; background: transparent;" onclick="switchAuthTab('register')">免费注册</button>
+        </div>
+
+        <form id="auth-form" onsubmit="handleAuthSubmit(event)">
+          <div class="form-group">
+            <label class="form-label">用户名</label>
+            <input type="text" id="auth-username" class="form-input" placeholder="请输入 3~20 位用户名" required autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label class="form-label">登录密码</label>
+            <input type="password" id="auth-password" class="form-input" placeholder="请输入不少于 6 位的密码" required autocomplete="current-password">
+          </div>
+          <div id="register-confirm-group" class="form-group" style="display: none;">
+            <label class="form-label">确认密码</label>
+            <input type="password" id="auth-confirm-password" class="form-input" placeholder="请再次输入相同密码">
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 13px; margin-top: 10px; font-size: 1rem;" id="auth-submit-btn">
+            立即登录
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 模态框 2：卡密兑换弹窗 ==================== -->
+  <div class="modal-overlay" id="redeem-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">🎁 卡密兑换充值</div>
+        <button class="modal-close" onclick="closeModal('redeem-modal')">×</button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 18px; line-height: 1.5;">
+          请输入您在“联动小铺”下单获取的卡密码，提交后系统秒级验证并将对应金额充入您的账户余额。
+        </p>
+        <div class="form-group">
+          <label class="form-label">卡密充值码</label>
+          <input type="text" id="redeem-code-input" class="form-input" placeholder="例如：CARD-XXXX-XXXX-XXXX" style="font-family: monospace; font-size: 1.15rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">
+        </div>
+
+        <div style="background: #eff6ff; border: 1px dashed #93c5fd; padding: 14px; border-radius: 10px; margin-top: 16px;">
+          <div style="font-size: 0.85rem; color: #1e40af; font-weight: 700; margin-bottom: 8px;">💡 快速体验测试卡密（点击自动填入）：</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            <button type="button" class="btn btn-outline btn-sm" style="background: white;" onclick="fillTestCard('TEST-100RMB-AAAA-BBBB')">100元体验卡</button>
+            <button type="button" class="btn btn-outline btn-sm" style="background: white;" onclick="fillTestCard('TEST-50RMB-CCCC-DDDD')">50元体验卡</button>
+            <button type="button" class="btn btn-outline btn-sm" style="background: white;" onclick="fillTestCard('TEST-30RMB-EEEE-FFFF')">30元体验卡</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('redeem-modal')">取消</button>
+        <button class="btn btn-glow-gold" onclick="submitRedeem()">确认立即兑换</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 模态框 3：商品定制下单购买弹窗 ==================== -->
+  <div class="modal-overlay" id="buy-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title" id="buy-modal-title">购买与定制下单</div>
+        <button class="modal-close" onclick="closeModal('buy-modal')">×</button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; gap: 16px; margin-bottom: 18px; align-items: center; background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid var(--border);">
+          <img id="buy-good-cover" src="" style="width: 72px; height: 72px; border-radius: 10px; object-fit: cover; background: #e2e8f0;">
+          <div style="flex: 1;">
+            <h4 id="buy-good-name" style="font-size: 1.15rem; font-weight: 700; margin-bottom: 4px;">商品名称</h4>
+            <div style="color: #e11d48; font-weight: 800; font-size: 1.35rem;">
+              ¥<span id="buy-good-price">0.00</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="background: #ffffff; border: 1px solid var(--border); padding: 14px; border-radius: 10px; margin-bottom: 18px; font-size: 0.92rem; box-shadow: var(--shadow-sm);">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="color: var(--text-muted); font-weight: 500;">您的账户余额：</span>
+            <span style="font-weight: 800; color: #4f46e5; font-size: 1.1rem;">¥<span id="buy-user-balance">0.00</span></span>
+          </div>
+          <div id="buy-balance-status" style="font-size: 0.85rem; margin-top: 6px;"></div>
+        </div>
+
+        <div class="form-group" id="buy-input-group">
+          <label class="form-label" id="buy-input-label">
+            请填写代办指定信息 <span style="color: #e11d48;">*</span>
+          </label>
+          <textarea id="buy-user-input" class="form-textarea" rows="3" placeholder="请在此输入账号/区服等相关信息..."></textarea>
+          <div class="form-hint" id="buy-input-hint">请仔细核对您填写的信息，站长将在后台查看并为您处理。</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('buy-modal')">取消</button>
+        <button class="btn btn-primary" id="buy-confirm-btn" onclick="submitOrder()">确认扣除余额下单</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 模态框 4：我的订单中心 ==================== -->
+  <div class="modal-overlay" id="orders-modal">
+    <div class="modal-box" style="max-width: 700px;">
+      <div class="modal-header">
+        <div class="modal-title">📑 我的历史订单与进度</div>
+        <button class="modal-close" onclick="closeModal('orders-modal')">×</button>
+      </div>
+      <div class="modal-body" id="orders-list-container" style="max-height: 65vh;">
+        <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+          正在加载订单...
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="loadMyOrders()">🔄 刷新列表</button>
+        <button class="btn btn-primary" onclick="closeModal('orders-modal')">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>

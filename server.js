@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('node:path');
+const fs = require('node:fs');
 const crypto = require('node:crypto');
 const { db, hashPassword, verifyPassword } = require('./db');
 
@@ -13,8 +14,32 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 静态文件托管
-app.use(express.static(path.join(__dirname, 'public')));
+// ==================== 智能静态资源路径探测 ====================
+// 解决在 GitHub 上传时可能出现的层级平铺或多层嵌套问题
+function findPublicDir() {
+  const possiblePaths = [
+    path.join(__dirname, 'public'),
+    path.join(__dirname, 'card-shop', 'public'),
+    path.join(process.cwd(), 'public'),
+    path.join(process.cwd(), 'card-shop', 'public'),
+    __dirname,
+    process.cwd()
+  ];
+  for (const p of possiblePaths) {
+    if (fs.existsSync(path.join(p, 'index.html'))) {
+      return p;
+    }
+  }
+  return path.join(__dirname, 'public');
+}
+
+const PUBLIC_DIR = findPublicDir();
+console.log(`[静态资源] 前端静态资源目录已定位到: ${PUBLIC_DIR}`);
+
+app.use(express.static(PUBLIC_DIR));
+if (fs.existsSync(path.join(__dirname, 'public'))) {
+  app.use(express.static(path.join(__dirname, 'public')));
+}
 
 // ==================== 安全 Token 机制 ====================
 function generateToken(user) {
@@ -93,7 +118,6 @@ app.post('/api/auth/register', (req, res) => {
     return res.status(400).json({ code: 400, message: '密码长度不能少于 6 位' });
   }
 
-  // 检查是否重名
   const existUser = db.prepare('SELECT id FROM users WHERE username = ?').get(username);
   if (existUser) {
     return res.status(400).json({ code: 400, message: '该用户名已被注册，请更换一个' });
@@ -201,28 +225,23 @@ app.post('/api/cards/redeem', authMiddleware, (req, res) => {
     return res.status(400).json({ code: 400, message: '该卡密已被管理员作废' });
   }
 
-  // 执行原子事务：标记卡密已用，增加用户余额，记录日志
   try {
     db.exec('BEGIN TRANSACTION;');
 
-    // 1. 标记卡密
     db.prepare(`
       UPDATE cards 
       SET status = 1, used_by = ?, used_username = ?, used_at = datetime('now', 'localtime')
       WHERE id = ? AND status = 0
     `).run(req.user.id, req.user.username, card.id);
 
-    // 2. 增加用户余额
     db.prepare(`
       UPDATE users 
       SET balance = balance + ? 
       WHERE id = ?
     `).run(card.amount, req.user.id);
 
-    // 3. 读取更新后的余额
     const updatedUser = db.prepare('SELECT balance FROM users WHERE id = ?').get(req.user.id);
 
-    // 4. 写入流水记录
     db.prepare(`
       INSERT INTO balance_logs (user_id, username, type, amount, balance_after, remark)
       VALUES (?, ?, 'redeem', ?, ?, ?)
@@ -276,7 +295,6 @@ app.post('/api/admin/cards/generate', adminMiddleware, (req, res) => {
   try {
     db.exec('BEGIN TRANSACTION;');
     for (let i = 0; i < numCount; i++) {
-      // 生成格式如: CARD-88A1-B9C2-D3E4
       const rand1 = crypto.randomBytes(2).toString('hex').toUpperCase();
       const rand2 = crypto.randomBytes(2).toString('hex').toUpperCase();
       const rand3 = crypto.randomBytes(2).toString('hex').toUpperCase();
@@ -335,7 +353,6 @@ app.get('/api/admin/cards', adminMiddleware, (req, res) => {
   `);
   const cards = listStmt.all(...params, parseInt(limit, 10), offset);
 
-  // 统计概览
   const stats = db.prepare(`
     SELECT 
       COUNT(*) as total_count,
@@ -399,7 +416,7 @@ app.get('/api/goods/:id', (req, res) => {
   res.json({ code: 200, data: good });
 });
 
-// 管理员端：获取所有商品（包括下架）
+// 管理员端：获取所有商品
 app.get('/api/admin/goods', adminMiddleware, (req, res) => {
   const goods = db.prepare('SELECT * FROM goods ORDER BY sort_order ASC, id DESC').all();
   res.json({ code: 200, data: goods });
@@ -478,7 +495,7 @@ app.patch('/api/admin/goods/:id/status', adminMiddleware, (req, res) => {
 
 // ==================== 4. 订单与代办处理模块 ====================
 
-// 买家端：用余额下单购买商品（带自定义信息提交）
+// 买家端：用余额下单购买商品
 app.post('/api/orders/create', authMiddleware, (req, res) => {
   const { goods_id, quantity = 1, user_inputs } = req.body;
   const numQty = parseInt(quantity, 10);
@@ -495,7 +512,6 @@ app.post('/api/orders/create', authMiddleware, (req, res) => {
     return res.status(400).json({ code: 400, message: '该商品库存不足' });
   }
 
-  // 如果该商品要求买家填写指定信息，必须校验
   if (good.require_input && (!user_inputs || !user_inputs.trim())) {
     return res.status(400).json({
       code: 400,
@@ -505,7 +521,6 @@ app.post('/api/orders/create', authMiddleware, (req, res) => {
 
   const totalPrice = parseFloat((good.price * numQty).toFixed(2));
 
-  // 检查买家当前余额
   const user = db.prepare('SELECT balance FROM users WHERE id = ?').get(req.user.id);
   if (!user || user.balance < totalPrice) {
     const diff = (totalPrice - (user ? user.balance : 0)).toFixed(2);
@@ -515,7 +530,6 @@ app.post('/api/orders/create', authMiddleware, (req, res) => {
     });
   }
 
-  // 生成唯一订单编号 ORD-年月日-随机串
   const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
   const randSuffix = crypto.randomBytes(3).toString('hex').toUpperCase();
   const orderNo = `ORD-${dateStr}-${randSuffix}`;
@@ -523,13 +537,9 @@ app.post('/api/orders/create', authMiddleware, (req, res) => {
   try {
     db.exec('BEGIN TRANSACTION;');
 
-    // 1. 扣除买家余额
     db.prepare('UPDATE users SET balance = balance - ? WHERE id = ?').run(totalPrice, req.user.id);
-
-    // 2. 扣除商品库存
     db.prepare('UPDATE goods SET stock = stock - ? WHERE id = ?').run(numQty, good.id);
 
-    // 3. 创建订单记录
     const orderStmt = db.prepare(`
       INSERT INTO orders (order_no, user_id, username, goods_id, goods_name, price, quantity, total_price, user_inputs, status)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
@@ -546,7 +556,6 @@ app.post('/api/orders/create', authMiddleware, (req, res) => {
       (user_inputs || '').trim()
     );
 
-    // 4. 写入余额流水记录
     const updatedUser = db.prepare('SELECT balance FROM users WHERE id = ?').get(req.user.id);
     db.prepare(`
       INSERT INTO balance_logs (user_id, username, type, amount, balance_after, remark)
@@ -589,7 +598,7 @@ app.get('/api/orders/my', authMiddleware, (req, res) => {
   res.json({ code: 200, data: orders });
 });
 
-// 管理员端：获取所有订单（支持筛选）
+// 管理员端：获取所有订单
 app.get('/api/admin/orders', adminMiddleware, (req, res) => {
   const { status, search, page = 1, limit = 50 } = req.query;
   const offset = (parseInt(page, 10) - 1) * parseInt(limit, 10);
@@ -617,7 +626,6 @@ app.get('/api/admin/orders', adminMiddleware, (req, res) => {
     LIMIT ? OFFSET ?
   `).all(...params, parseInt(limit, 10), offset);
 
-  // 待处理与总计统计
   const stats = db.prepare(`
     SELECT 
       COUNT(*) as total_orders,
@@ -642,11 +650,11 @@ app.get('/api/admin/orders', adminMiddleware, (req, res) => {
   });
 });
 
-// 管理员端：处理订单（完成/交付回执，或退款）
+// 管理员端：处理订单
 app.post('/api/admin/orders/:id/process', adminMiddleware, (req, res) => {
   const orderId = parseInt(req.params.id, 10);
   const { status, admin_reply } = req.body;
-  const targetStatus = parseInt(status, 10); // 1: 完成, 2: 退款
+  const targetStatus = parseInt(status, 10);
 
   const order = db.prepare('SELECT * FROM orders WHERE id = ?').get(orderId);
   if (!order) {
@@ -654,7 +662,6 @@ app.post('/api/admin/orders/:id/process', adminMiddleware, (req, res) => {
   }
 
   if (targetStatus === 1) {
-    // 标记已完成，并保存站长回执信息
     db.prepare(`
       UPDATE orders 
       SET status = 1, admin_reply = ?, finish_time = datetime('now', 'localtime')
@@ -663,7 +670,6 @@ app.post('/api/admin/orders/:id/process', adminMiddleware, (req, res) => {
 
     return res.json({ code: 200, message: '订单已成功标记为【已完成】，买家端已同步更新！' });
   } else if (targetStatus === 2) {
-    // 全额退款回用户余额
     if (order.status === 2) {
       return res.status(400).json({ code: 400, message: '该订单此前已经退款，不可重复退款' });
     }
@@ -671,20 +677,15 @@ app.post('/api/admin/orders/:id/process', adminMiddleware, (req, res) => {
     try {
       db.exec('BEGIN TRANSACTION;');
 
-      // 1. 更新订单为已退款
       db.prepare(`
         UPDATE orders 
         SET status = 2, admin_reply = ?, finish_time = datetime('now', 'localtime')
         WHERE id = ?
       `).run(admin_reply ? `【已退款】${admin_reply}` : '【已退款】订单已取消并全额退回账户余额', orderId);
 
-      // 2. 资金退回买家余额
       db.prepare('UPDATE users SET balance = balance + ? WHERE id = ?').run(order.total_price, order.user_id);
-
-      // 3. 回滚库存
       db.prepare('UPDATE goods SET stock = stock + ? WHERE id = ?').run(order.quantity, order.goods_id);
 
-      // 4. 写入流水
       const updatedUser = db.prepare('SELECT balance FROM users WHERE id = ?').get(order.user_id);
       db.prepare(`
         INSERT INTO balance_logs (user_id, username, type, amount, balance_after, remark)
@@ -721,7 +722,7 @@ app.get('/api/settings/public', (req, res) => {
   res.json({ code: 200, data: settings });
 });
 
-// 管理员：保存配置（如联动小铺卡密直达购买网址、网站公告、客服等）
+// 管理员：保存配置
 app.post('/api/admin/settings', adminMiddleware, (req, res) => {
   const { site_name, site_announcement, contact_info, liandong_shop_url } = req.body;
 
@@ -740,10 +741,8 @@ app.post('/api/admin/settings', adminMiddleware, (req, res) => {
 
 // 管理员：数据看板统计
 app.get('/api/admin/dashboard', adminMiddleware, (req, res) => {
-  // 总用户数
   const userCount = db.prepare('SELECT COUNT(*) as count FROM users WHERE is_admin = 0').get().count;
 
-  // 今日订单与总订单
   const orderStats = db.prepare(`
     SELECT 
       COUNT(*) as total_orders,
@@ -754,7 +753,6 @@ app.get('/api/admin/dashboard', adminMiddleware, (req, res) => {
     FROM orders
   `).get();
 
-  // 卡密统计
   const cardStats = db.prepare(`
     SELECT 
       COUNT(*) as total_cards,
@@ -763,7 +761,6 @@ app.get('/api/admin/dashboard', adminMiddleware, (req, res) => {
     FROM cards
   `).get();
 
-  // 最新 5 条待处理订单
   const recentPendingOrders = db.prepare(`
     SELECT * FROM orders WHERE status = 0 ORDER BY id DESC LIMIT 5
   `).all();
@@ -793,9 +790,18 @@ app.get('/api/balance/logs', authMiddleware, (req, res) => {
   res.json({ code: 200, data: logs });
 });
 
-// 根路由及前台单页兜底
+// 根路由及前台单页兜底 (自适应 index.html 路径)
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  const indexPath = path.join(PUBLIC_DIR, 'index.html');
+  if (fs.existsSync(indexPath)) {
+    return res.sendFile(indexPath);
+  }
+  res.status(404).send(`
+    <div style="font-family: sans-serif; text-align: center; padding: 50px;">
+      <h2>⚡ 商城服务运行正常</h2>
+      <p style="color: #64748b;">未找到前端网页文件，请确认是否已将 <code>public</code> 文件夹完整上传至仓库。</p>
+    </div>
+  `);
 });
 
 // 启动监听
